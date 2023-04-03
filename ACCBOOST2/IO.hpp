@@ -26,7 +26,7 @@ namespace ACCBOOST2::IO
   template<class CharType>
   InputStream<CharType> make_stdin_stream(const std::string& encoding = "ascii")
   {
-    return InputStream<CharType>(BINARY_TOOLS::make_decoder<CharT>(BINARY_TOOLS::make_binary_stdin_reader(), encoding));
+    return InputStream<CharType>(BINARY_TOOLS::make_decoder<CharType>(BINARY_TOOLS::make_binary_stdin_reader(), encoding));
   }
 
   template<class CharType>

@@ -220,8 +220,8 @@ namespace ACCBOOST2
       return tmp;
     }
 
-    template<class ArgumentType>
-    void resize(const std::size_t& size, const ArgumentType& value)
+    template<class... ArgumentTypes>
+    void resize(const std::size_t& size, const ArgumentTypes&... arguments)
     {
       if(_size > size){
         do{
@@ -230,7 +230,7 @@ namespace ACCBOOST2
       }else if(_size < size){
         reserve(size);
         do{
-          push_back_without_allocation(value);
+          push_back_without_allocation(arguments...);
         }while(_size < size);
       }
     }

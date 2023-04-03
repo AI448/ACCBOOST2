@@ -54,7 +54,7 @@ private:
     }
   };
 
-  using HashTable = CONTAINER_ASSEMBLY::HashTable<index_pair, HashFunction>;
+  using HashTable = SPARSE_ASSEMBLY::HashTable<index_pair, HashFunction>;
 
 public:
 
@@ -97,10 +97,23 @@ public:
 private:
 
   MEMORY::MemoryPool<Item> _memory_pool;
-  std::array<Array<CONTAINER_ASSEMBLY::List>, 2> _lists;
+  std::array<Array<SPARSE_ASSEMBLY::List>, 2> _lists;
   HashTable _hash_table;
 
 public:
+
+  Sparse2DArray() = default;
+
+  Sparse2DArray(Sparse2DArray&&) = default;
+
+  Sparse2DArray(const Sparse2DArray&) = default;
+
+  Sparse2DArray(const std::size_t& row_size, const std::size_t& column_size):
+    _memory_pool(), _lists(), _hash_table()
+  {
+    _lists[ROW].resize(row_size);
+    _lists[COLUMN].resize(column_size);
+  }
 
   ~Sparse2DArray() noexcept
   {
@@ -256,7 +269,7 @@ private:
 
     struct ItemToTuple
     {
-      decltype(auto) operator()(const CONTAINER_ASSEMBLY::List::Item* list_item) const noexcept
+      decltype(auto) operator()(const SPARSE_ASSEMBLY::List::Item* list_item) const noexcept
       {
         const Item* item = static_cast<const Item*>(static_cast<const ListItem*>(list_item));
         return std::forward_as_tuple(item->row_index(), item->column_index(), item->value());
