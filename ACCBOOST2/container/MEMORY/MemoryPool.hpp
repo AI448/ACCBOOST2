@@ -30,6 +30,11 @@ namespace ACCBOOST2::MEMORY
       _allocator.expand(n);
     }
 
+    ACCBOOST2_INLINE void release() noexcept
+    {
+      _allocator.release();
+    }
+
     template<class... Args>
     ACCBOOST2_INLINE ValueType* create(Args&&... args)
     {

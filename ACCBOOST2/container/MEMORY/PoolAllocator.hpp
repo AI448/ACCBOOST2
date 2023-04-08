@@ -53,28 +53,16 @@ namespace ACCBOOST2::MEMORY
       other._first_empty_chunk = nullptr;
     }
   
-  private:
-
-    ACCBOOST2_NOINLINE void _release() noexcept
+    ACCBOOST2_INLINE explicit PoolAllocator(std::size_t capacity):
+      PoolAllocator()
     {
+      expand(capacity);
       assert((_table == nullptr) == (_table_size == 0));
-      assert(_number_of_allocateds == 0);
-      if(_table != nullptr){
-        while(_table_size-- != 0){
-          MEMORY::deallocate(_table[_table_size]);
-        }
-        MEMORY::deallocate(_table);
-      }
     }
-
-  public:
 
     ACCBOOST2_INLINE ~PoolAllocator() noexcept
     {
-      assert((_table == nullptr) == (_table_size == 0));
-      if(_table != nullptr){
-        _release();
-      }
+      release();
     }
 
     ACCBOOST2_NOINLINE void expand(std::size_t n)
@@ -112,13 +100,6 @@ namespace ACCBOOST2::MEMORY
       assert((_table == nullptr) == (_table_size == 0));
     }
 
-    ACCBOOST2_INLINE explicit PoolAllocator(std::size_t capacity):
-      PoolAllocator()
-    {
-      expand(capacity);
-      assert((_table == nullptr) == (_table_size == 0));
-    }
-
     ACCBOOST2_INLINE void* allocate()
     {
       assert((_table == nullptr) == (_table_size == 0));
@@ -140,6 +121,32 @@ namespace ACCBOOST2::MEMORY
         slot->next =  _first_empty_chunk;
         _first_empty_chunk = slot;
         --_number_of_allocateds;
+      }
+    }
+
+  private:
+
+    ACCBOOST2_NOINLINE void _release() noexcept
+    {
+      assert((_table == nullptr) == (_table_size == 0));
+      assert(_number_of_allocateds == 0);
+      if(_table != nullptr){
+        while(_table_size != 0){
+          _table_size -= 1;
+          MEMORY::deallocate(_table[_table_size]);
+        }
+        MEMORY::deallocate(_table);
+        _table = nullptr;
+      }
+    }
+
+  public:
+
+    ACCBOOST2_INLINE void release() noexcept
+    {
+      assert((_table == nullptr) == (_table_size == 0));
+      if(_table != nullptr){
+        _release();
       }
     }
 

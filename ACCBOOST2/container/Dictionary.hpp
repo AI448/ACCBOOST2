@@ -55,21 +55,27 @@ class Dictionary
 {
 private:
 
-  using HashTable = SPARSE_ASSEMBLY::HashTable<KeyType, HashFunctionType>;
+  using HashTableItem = SPARSE_ASSEMBLY::HashTableItem;
   using List = SPARSE_ASSEMBLY::List;
 
-  class Item: public HashTable::Item, public List::Item
+  class Item: public HashTableItem, public List::Item
   {
   private:
 
+    KeyType _key;
     ValueType _value;
 
   public:
 
     template<class K, class V>
     Item(K&& key, V&& value):
-      HashTable::Item(std::forward<K>(key)), List::Item(), _value(std::forward<V>(value))
+      HashTableItem(), List::Item(), _key(std::forward<K>(key)), _value(std::forward<V>(value))
     {}
+
+    const KeyType& key() const noexcept
+    {
+      return _key;
+    }
 
     const ValueType& value() const noexcept
     {
@@ -82,6 +88,16 @@ private:
     }
 
   };
+
+  struct GetKey
+  {
+    const KeyType& operator()(const HashTableItem& item) const noexcept
+    {
+      return static_cast<const Item&>(item).key();
+    }
+  };
+
+  using HashTable = SPARSE_ASSEMBLY::HashTable<GetKey, HashFunctionType>;
 
   MEMORY::MemoryPool<Item> _memory_pool;
   HashTable _hash_table;
