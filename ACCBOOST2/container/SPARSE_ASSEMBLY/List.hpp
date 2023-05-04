@@ -17,10 +17,6 @@ public:
   {
     friend class List;
 
-  public:
-
-    using iterator_category = std::bidirectional_iterator_tag;
-
   private:
 
     Item* _previous_item;

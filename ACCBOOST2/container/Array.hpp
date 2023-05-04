@@ -110,12 +110,12 @@ namespace ACCBOOST2
       return *this;
     }
 
-    std::size_t capacity() const noexcept
+    const std::size_t& capacity() const noexcept
     {
       return _capacity;
     }
 
-    std::size_t size() const noexcept
+    const std::size_t& size() const noexcept
     {
       return _size;
     }
@@ -200,7 +200,7 @@ namespace ACCBOOST2
     {
       static_assert(ACCBOOST2::is_range<RangeType>);
       if constexpr (ACCBOOST2::is_random_access_range<RangeType>){
-        reserve(capacity() + x.end() - x.begin());
+        reserve(capacity() + (x.end() - x.begin()));
         for(auto&& y: x){
           push_back_without_allocation(std::forward<decltype(y)>(y));
         }

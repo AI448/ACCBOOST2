@@ -248,9 +248,9 @@ public:
   {
     static_assert(std::is_lvalue_reference_v<DefaultValueType>);
     const Item* item = static_cast<const Item*>(_hash_table.get(std::array{row_index, column_index}));
-    assert(item->row_index() == row_index);
-    assert(item->column_index() == column_index);
     if(item != nullptr){
+      assert(item->row_index() == row_index);
+      assert(item->column_index() == column_index);
       return item->value();
     }else{
       return default_value;
