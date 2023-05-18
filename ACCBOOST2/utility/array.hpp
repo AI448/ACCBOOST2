@@ -10,6 +10,7 @@
 #include "array/enumerate.hpp"
 #include "array/map.hpp"
 #include "array/reverse.hpp"
+#include "array/repeat.hpp"
 
 
 #endif
