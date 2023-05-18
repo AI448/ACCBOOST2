@@ -109,28 +109,28 @@ namespace ACCBOOST2
 
       template<class I>
       requires(ACCBOOST2::META::is_valid_to_subtract_v<const IteratorT&, const I&>)
-      difference_type operator-(const MapIterator<FunctorT, I>& other) const
+      decltype(auto) operator-(const MapIterator<FunctorT, I>& other) const
       {
         return iterator_ - other.iterator_;
       }
 
       template<class IT = IteratorT>
       requires(ACCBOOST2::META::is_valid_to_indirect_v<const IT&>)
-      reference operator*() const
+      decltype(auto) operator*() const
       {
         return functor_(*iterator_);
       }
 
       template<class IT = IteratorT>
       requires(ACCBOOST2::META::is_valid_to_indirect_v<const IT&>)
-      pointer operator->() const
+      decltype(auto) operator->() const
       {
         return ACCBOOST2::make_arrow_wrapper(operator*());
       }
 
       template<class IT = IteratorT>
       requires(ACCBOOST2::META::is_valid_to_subscript_v<const IT&, const std::ptrdiff_t&>)
-      reference operator[](difference_type d) const
+      decltype(auto) operator[](difference_type d) const
       {
         return functor_(iterator_[d]);
       }

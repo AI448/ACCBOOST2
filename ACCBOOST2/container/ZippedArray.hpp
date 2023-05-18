@@ -240,7 +240,13 @@ namespace ACCBOOST2
     {
       assert(_size != 0);
       --_size;
-      std::tuple<ValueTypes...> tmp = map([&](auto* p) ->decltype(auto) {std::move(p[_size]);}, _pointers);
+      std::tuple<ValueTypes...> tmp = map(
+        [&](auto* p) ->decltype(auto)
+        {
+          return std::move(p[_size]);
+        },
+        _pointers
+      );
       for_each([&](auto* p){MEMORY::destroy(p + _size);}, _pointers);
       return tmp;
     }
@@ -268,6 +274,18 @@ namespace ACCBOOST2
         do{
           push_back_without_allocation(values...);
         }while(_size < size);
+      }
+    }
+
+    template<class... ArgumentTypes>
+    void resize(const std::size_t& size)
+    {
+      if(_size > size){
+        do{
+          pop_back();
+        }while(_size > size);
+      }else if(_size < size){
+        resize(size, ValueTypes()...);
       }
     }
 

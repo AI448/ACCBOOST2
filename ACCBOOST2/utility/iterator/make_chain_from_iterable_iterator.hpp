@@ -53,7 +53,7 @@ namespace ACCBOOST2
         Sub(Sub&&) = default;
         Sub(const Sub&) = default;
         explicit Sub(sub_range_reference&& range):
-          range_(std::forward<sub_range_reference>(range)), first_(begin(range_)), last_(end(range_))
+          range_(std::forward<sub_range_reference>(range)), first_(begin(std::as_const(range_))), last_(end(std::as_const(range_)))
         {}
 
       };
