@@ -9,6 +9,7 @@
 #include "iterable/range.hpp"
 #include "iterable/reverse.hpp"
 #include "iterable/search.hpp"
+#include "iterable/slice.hpp"
 #include "iterable/zip.hpp"
 
 
