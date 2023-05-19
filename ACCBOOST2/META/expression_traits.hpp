@@ -42,7 +42,7 @@ namespace ACCBOOST2::META
   template<class T> struct is_valid_to_##name<META::list<T>>: META::is_valid<META::result_of_##name<T>> {}; \
   template<class T> constexpr bool is_valid_to_##name##_v = META::is_valid_to_##name<T>::value;
 
-  // 単項演算の result_of_xxx 用のマクロ
+  // 2 項演算の result_of_xxx 用のマクロ
   #define ACCBOOST2_META_DEFINE_EXPRESSION_TRAITS_2(name, expr) \
   namespace _result_of_##name \
   { \

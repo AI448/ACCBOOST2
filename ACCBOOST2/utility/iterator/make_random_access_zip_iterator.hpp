@@ -221,7 +221,7 @@ namespace ACCBOOST2
         return *this;
       }
 
-      template<class X = ACCBOOST2::META::list<IteratorsT&...>>
+      template<class X = ACCBOOST2::META::list<ACCBOOST2::META::list<IteratorsT&, const difference_type&>...>>
       requires(ACCBOOST2::META::all_v<ACCBOOST2::META::map<ACCBOOST2::META::is_valid_to_add_assign, X>>)
       Impl& operator+=(difference_type d)
       {
@@ -229,7 +229,7 @@ namespace ACCBOOST2
         return *this;
       }
 
-      template<class X = ACCBOOST2::META::list<IteratorsT&...>>
+      template<class X = ACCBOOST2::META::list<ACCBOOST2::META::list<IteratorsT&, const difference_type&>...>>
       requires(ACCBOOST2::META::all_v<ACCBOOST2::META::map<ACCBOOST2::META::is_valid_to_subtract_assign, X>>)
       Impl& operator-=(difference_type d)
       {

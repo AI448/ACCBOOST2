@@ -117,7 +117,7 @@ namespace ACCBOOST2
 
     decltype(auto) begin() noexcept
     {
-      return apply(
+      return ACCBOOST2::apply(
         [&](auto*... p){return make_random_access_zip_iterator(static_cast<decltype(_size)>(0), p...);},
         _pointers
       );
@@ -125,7 +125,7 @@ namespace ACCBOOST2
 
     decltype(auto) end() noexcept
     {
-      return apply(
+      return ACCBOOST2::apply(
         [&](auto*... p){return make_random_access_zip_iterator(_size, p...);},
         _pointers
       );
@@ -133,7 +133,7 @@ namespace ACCBOOST2
 
     decltype(auto) begin() const noexcept
     {
-      return apply(
+      return ACCBOOST2::apply(
         [&](const auto*... p){return make_random_access_zip_iterator(static_cast<decltype(_size)>(0), p...);},
         _pointers
       );
@@ -141,7 +141,7 @@ namespace ACCBOOST2
 
     decltype(auto) end() const noexcept
     {
-      return apply(
+      return ACCBOOST2::apply(
         [&](const auto*... p){return make_random_access_zip_iterator(_size, p...);},
         _pointers
       );
@@ -219,16 +219,16 @@ namespace ACCBOOST2
     {
       static_assert(is_range<RangeType>);
       if constexpr (is_random_access_range<RangeType>){
-        reserve(capacity() + x.end() - x.begin());
+        reserve(capacity() + (x.end() - x.begin()));
         for(auto&& y: x){
-          apply(
+          ACCBOOST2::apply(
             [&](auto&&... z){push_back_without_allocation(std::forward<decltype(z)>(z)...);},
             std::forward<decltype(y)>(y)
           );
         }
       }else{
         for(auto&& y: x){
-          apply(
+          ACCBOOST2::apply(
             [&](auto&&... z){push_back(std::forward<decltype(z)>(z)...);},
             std::forward<decltype(y)>(y)
           );

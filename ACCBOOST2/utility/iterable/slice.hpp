@@ -48,9 +48,9 @@ public:
 
 
 template<std::integral FirstT, std::integral LastT, class RangeT>
-decltype(auto) slice(FirstT&& from, LastT&& last, RangeT&& range)
+decltype(auto) slice(FirstT&& first, LastT&& last, RangeT&& range)
 {
-  return _utility_iterable_slice::SlicedRange<FirstT, LastT, RangeT>(range);
+  return _utility_iterable_slice::SlicedRange<FirstT, LastT, RangeT>(first, last, range);
 }
 
 
