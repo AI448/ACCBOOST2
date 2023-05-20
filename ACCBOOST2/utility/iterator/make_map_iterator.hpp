@@ -27,23 +27,23 @@ namespace ACCBOOST2
 
       using difference_type = std::ptrdiff_t;
 
-      using reference = std::conditional_t<
-        ACCBOOST2::META::is_valid_to_call_v<const FunctorT&, reference_of_iterator<const IteratorT&>&&>,
-        ACCBOOST2::META::result_of_call<const FunctorT&, reference_of_iterator<const IteratorT&>&&>,
-        void
-      >;
+      // using reference = std::conditional_t<
+      //   ACCBOOST2::META::is_valid_to_call_v<const FunctorT&, reference_of_iterator<const IteratorT&>&&>,
+      //   ACCBOOST2::META::result_of_call<const FunctorT&, reference_of_iterator<const IteratorT&>&&>,
+      //   void
+      // >;
 
-      using value_type = std::conditional_t<
-        std::is_reference_v<reference>,
-        std::remove_reference_t<reference>,
-        void
-      >;
+      // using value_type = std::conditional_t<
+      //   std::is_reference_v<reference>,
+      //   std::remove_reference_t<reference>,
+      //   void
+      // >;
 
-      using pointer = std::conditional_t<
-        std::is_reference_v<reference>,
-        std::add_pointer_t<std::remove_reference_t<reference>>,
-        void
-      >;
+      // using pointer = std::conditional_t<
+      //   std::is_reference_v<reference>,
+      //   std::add_pointer_t<std::remove_reference_t<reference>>,
+      //   void
+      // >;
 
     private:
 
@@ -72,9 +72,9 @@ namespace ACCBOOST2
         return iterator_ == other.iterator_;
       }
 
-      template<class I>
+      template<class F, class I>
       requires(ACCBOOST2::META::is_valid_to_inequal_v<const IteratorT&, const I&>)
-      bool operator!=(const MapIterator<FunctorT, I>& other) const
+      bool operator!=(const MapIterator<F, I>& other) const
       {
         return iterator_ != other.iterator_;
       }

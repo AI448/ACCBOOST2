@@ -27,8 +27,8 @@ private:
 
 public:
 
-  SlicedRange(FirstT&& first, LastT&& last, RangeT&& range):
-    _first(std::forward<FirstT>(first)), _last(std::forward<LastT>(last)), _range(std::forward<RangeT>(range))
+  SlicedRange(const FirstT& first, const LastT& last, RangeT&& range):
+    _first(first), _last(last), _range(std::forward<RangeT>(range))
   {}
 
   decltype(auto) begin() const noexcept
@@ -48,9 +48,9 @@ public:
 
 
 template<std::integral FirstT, std::integral LastT, class RangeT>
-decltype(auto) slice(FirstT&& first, LastT&& last, RangeT&& range)
+decltype(auto) slice(const FirstT& first, const LastT& last, RangeT&& range)
 {
-  return _utility_iterable_slice::SlicedRange<FirstT, LastT, RangeT>(first, last, range);
+  return _utility_iterable_slice::SlicedRange<FirstT, LastT, RangeT>(first, last, std::forward<RangeT>(range));
 }
 
 

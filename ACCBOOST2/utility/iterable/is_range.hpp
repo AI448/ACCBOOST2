@@ -13,7 +13,8 @@ namespace ACCBOOST2
 
   template<class RangeType>
   concept is_range = 
-    requires (RangeType& range){
+    requires (RangeType range)
+    {
       begin(range);
       end(range);
     }
