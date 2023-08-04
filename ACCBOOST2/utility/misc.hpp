@@ -9,6 +9,8 @@
 #include "misc/INLINE.hpp"
 #include "misc/tuple_size.hpp"
 #include "misc/tuple_element.hpp"
+#include "misc/weakly_equalily_comparable_with.hpp"
 #include "../META.hpp"
+
 
 #endif
