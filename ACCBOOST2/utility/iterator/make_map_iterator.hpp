@@ -12,6 +12,23 @@ namespace ACCBOOST2
   namespace _utility_iterator_make_map_iterator
   {
 
+    template<class F, class R>
+    struct reference_of_map_iterator
+    {
+      using type = std::conditional_t<
+        ACCBOOST2::META::is_valid_to_call_v<const F&, R&&>,
+        ACCBOOST2::META::result_of_call<const F&, R&&>,
+        void
+      >;
+    };
+
+    template<class F>
+    struct reference_of_map_iterator<F, void>
+    {
+      using type = void;
+    };
+
+
     template<class FunctorT, class IteratorT>
     class MapIterator
     {
@@ -27,23 +44,19 @@ namespace ACCBOOST2
 
       using difference_type = std::ptrdiff_t;
 
-      // using reference = std::conditional_t<
-      //   ACCBOOST2::META::is_valid_to_call_v<const FunctorT&, reference_of_iterator<const IteratorT&>&&>,
-      //   ACCBOOST2::META::result_of_call<const FunctorT&, reference_of_iterator<const IteratorT&>&&>,
-      //   void
-      // >;
+      using reference = typename reference_of_map_iterator<FunctorT, reference_of_iterator<const IteratorT&>>::type;
 
-      // using value_type = std::conditional_t<
-      //   std::is_reference_v<reference>,
-      //   std::remove_reference_t<reference>,
-      //   void
-      // >;
+      using value_type = std::conditional_t<
+        std::is_reference_v<reference>,
+        std::remove_reference_t<reference>,
+        void
+      >;
 
-      // using pointer = std::conditional_t<
-      //   std::is_reference_v<reference>,
-      //   std::add_pointer_t<std::remove_reference_t<reference>>,
-      //   void
-      // >;
+      using pointer = std::conditional_t<
+        std::is_reference_v<reference>,
+        std::add_pointer_t<std::remove_reference_t<reference>>,
+        void
+      >;
 
     private:
 

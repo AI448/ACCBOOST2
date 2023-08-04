@@ -25,7 +25,7 @@ namespace ACCBOOST2
 
   }
 
-  /// range<N>() は [0, 1, ..., N] を返す．
+  /// repeat<5>(x) は [x, x, x, x, x] を返す．
   template<std::size_t N, class ValueT>
   decltype(auto) repeat(const ValueT& value) noexcept
   {
