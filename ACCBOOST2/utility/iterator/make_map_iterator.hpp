@@ -215,8 +215,12 @@ namespace ACCBOOST2
 
     public:
 
-      explicit MapSentinel(SentinelType&& sentinel) noexcept(std::is_nothrow_constructible_v<SentinelType, SentinelType&&>):
-        _sentinel(std::forward<SentinelType>(sentinel))
+      template<class S>
+      requires(
+        std::constructible_from<SentinelType, S&&>
+      )
+      explicit MapSentinel(FunctorType&&, S&& sentinel) noexcept(std::is_nothrow_constructible_v<SentinelType, SentinelType&&>):
+        _sentinel(std::forward<S>(sentinel))
       {}
 
       MapSentinel() = default;
@@ -252,10 +256,11 @@ namespace ACCBOOST2
   template<class FunctorType, class IteratorType>
   decltype(auto) make_map_iterator(FunctorType&& f, IteratorType&& i)
   {
+    using I = std::remove_cv_t<std::remove_reference_t<IteratorType>>;
     using T = std::conditional_t<
-      std::forward_iterator<IteratorType>,
-      _utility_iterator_make_map_iterator::MapIterator<FunctorType, std::remove_cv_t<std::remove_reference_t<IteratorType>>>,
-      _utility_iterator_make_map_iterator::MapSentinel<FunctorType, std::remove_cv_t<std::remove_reference_t<IteratorType>>>
+      std::input_iterator<I>,
+      _utility_iterator_make_map_iterator::MapIterator<FunctorType, I>,
+      _utility_iterator_make_map_iterator::MapSentinel<FunctorType, I>
     >;
     return T(std::forward<FunctorType>(f), std::forward<IteratorType>(i));
   }

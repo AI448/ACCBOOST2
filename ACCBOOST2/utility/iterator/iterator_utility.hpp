@@ -3,6 +3,7 @@
 
 
 #include <iterator>
+#include <optional>
 #include "../misc.hpp"
 
 
@@ -17,19 +18,28 @@ namespace ACCBOOST2
 
   private:
 
-    FunctorType _functor;
+    std::optional<FunctorType> _functor;
   
   public:
+
+    FunctorCapture() = default;
+    FunctorCapture(FunctorCapture&&) = default;
+    FunctorCapture(const FunctorCapture&) = default;
 
     explicit FunctorCapture(FunctorType&& functor) noexcept:
       _functor(std::forward<FunctorType>(functor))
     {}
 
-    FunctorCapture() = default;
-    FunctorCapture(FunctorCapture&&) = default;
-    FunctorCapture(const FunctorCapture&) = default;
-    FunctorCapture& operator=(FunctorCapture&&) = default;
+    FunctorCapture& operator=(FunctorCapture&&) noexcept requires(std::movable<std::optional<FunctorType>>) = default;
     FunctorCapture& operator=(const FunctorCapture&) = default;
+
+    FunctorCapture& operator=(FunctorCapture&& rhs) noexcept requires(!std::movable<std::optional<FunctorType>>)
+    {
+      if(std::addressof(rhs) != this){
+        _functor.emplace(std::move(rhs._functor));
+      }
+      return *this;
+    }
 
     template<class... ArgTypes>
     requires(
@@ -37,7 +47,8 @@ namespace ACCBOOST2
     )
     decltype(auto) operator()(ArgTypes&&... args) noexcept(std::is_nothrow_invocable_v<FunctorType&, ArgTypes&&...>)
     {
-      return _functor(std::forward<ArgTypes>(args)...);
+      assert(_functor.has_value());
+      return (*_functor)(std::forward<ArgTypes>(args)...);
     }
 
     template<class... ArgTypes>
@@ -46,7 +57,8 @@ namespace ACCBOOST2
     )
     decltype(auto) operator()(ArgTypes&&... args) const noexcept(std::is_nothrow_invocable_v<const FunctorType&, ArgTypes&&...>)
     {
-      return _functor(std::forward<ArgTypes>(args)...);
+      assert(_functor.has_value());
+      return (*_functor)(std::forward<ArgTypes>(args)...);
     }
 
   };

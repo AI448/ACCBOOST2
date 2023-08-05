@@ -42,6 +42,7 @@ namespace ACCBOOST2
 
   }
 
+  /// 配列型または std::array または ACCBOOST2::StaticReferenceArray であれば true を返す
   template<class T>
   constexpr bool is_array = ACCBOOST2::_utility_array_is_array::is_array<T>::value;
 

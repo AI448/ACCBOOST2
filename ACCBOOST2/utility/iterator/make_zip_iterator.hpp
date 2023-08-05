@@ -26,14 +26,18 @@ namespace ACCBOOST2
       static_assert(sizeof...(IteratorTypes) > 0);
       static_assert((... && !std::is_reference_v<IteratorTypes>));
       static_assert((... && !std::is_const_v<IteratorTypes>));
-      static_assert((... && std::forward_iterator<IteratorTypes>));
+      static_assert((... && std::input_iterator<IteratorTypes>));
 
       template<class, class ...>
       friend class ZipIterator;
 
     public:
 
-      using iterator_category = std::forward_iterator_tag;
+      using iterator_category = std::conditional_t<
+        (... && std::forward_iterator<IteratorTypes>),
+        std::forward_iterator_tag,
+        std::input_iterator_tag
+      >;
 
       using difference_type = std::ptrdiff_t;
 
@@ -207,7 +211,7 @@ namespace ACCBOOST2
   decltype(auto) make_zip_iterator(IteratorTypes&&... iterators)
   {
     using T = std::conditional_t<
-      (... && std::forward_iterator<std::remove_cv_t<std::remove_reference_t<IteratorTypes>>>),
+      (... && std::input_iterator<std::remove_cv_t<std::remove_reference_t<IteratorTypes>>>),
       _utility_iterator_make_zip_iterator::ZippedIterator<std::remove_cv_t<std::remove_reference_t<IteratorTypes>>...>,
       _utility_iterator_make_zip_iterator::ZippedSentinel<std::remove_cv_t<std::remove_reference_t<IteratorTypes>>...>
     >;
@@ -220,7 +224,7 @@ namespace ACCBOOST2
   {
     auto integer_iterator = ACCBOOST2::make_integer_iterator(integer);    
     using T = std::conditional_t<
-      (... && std::forward_iterator<std::remove_cv_t<std::remove_reference_t<IteratorTypes>>>),
+      (... && std::input_iterator<std::remove_cv_t<std::remove_reference_t<IteratorTypes>>>),
       _utility_iterator_make_zip_iterator::EnumeratedIterator<decltype(integer_iterator), std::remove_cv_t<std::remove_reference_t<IteratorTypes>>...>,
       _utility_iterator_make_zip_iterator::EnumeratedSentinel<decltype(integer_iterator), std::remove_cv_t<std::remove_reference_t<IteratorTypes>>...>
     >;

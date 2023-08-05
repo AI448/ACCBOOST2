@@ -22,7 +22,7 @@ namespace ACCBOOST2
     template<class IteratorType, class SnetinelType>
     class Iterator
     {
-      static_assert(std::forward_iterator<IteratorType>);
+      static_assert(std::input_iterator<IteratorType>);
       static_assert(std::sentinel_for<SnetinelType, IteratorType>);
       static_assert(std::ranges::range<std::iter_reference_t<IteratorType>>);
 
@@ -32,22 +32,8 @@ namespace ACCBOOST2
       using sub_iterator_type = std::ranges::iterator_t<const std::remove_reference_t<sub_range_type>&>;
       using sub_sentinel_type = std::ranges::sentinel_t<const std::remove_reference_t<sub_range_type>&>;
 
-      static_assert(std::forward_iterator<sub_iterator_type>);
+      static_assert(std::input_iterator<sub_iterator_type>);
       static_assert(std::sentinel_for<sub_sentinel_type, sub_iterator_type>);
-
-    public:
-
-      using iterator_category = std::forward_iterator_tag;
-
-      using difference_type = std::ptrdiff_t;
-  
-      using reference = typename std::iterator_traits<sub_iterator_type>::reference;
-
-      using value_type = typename std::iterator_traits<sub_iterator_type>::value_type;
-
-      using pointer = typename std::iterator_traits<sub_iterator_type>::pointer;
-
-    private:
 
       struct Sub
       {
@@ -63,6 +49,24 @@ namespace ACCBOOST2
         {}
 
       };
+
+    public:
+
+      using iterator_category = std::conditional_t<
+        std::forward_iterator<IteratorType> && std::forward_iterator<sub_iterator_type> && std::copyable<std::optional<Sub>>,
+        std::forward_iterator_tag,
+        std::input_iterator_tag
+      >;
+
+      using difference_type = std::ptrdiff_t;
+  
+      using reference = typename std::iterator_traits<sub_iterator_type>::reference;
+
+      using value_type = typename std::iterator_traits<sub_iterator_type>::value_type;
+
+      using pointer = typename std::iterator_traits<sub_iterator_type>::pointer;
+
+    private:
 
       [[no_unique_address]] IteratorType _iterator;
       [[no_unique_address]] SnetinelType _sentinel;
@@ -93,7 +97,17 @@ namespace ACCBOOST2
         }
       }
 
-      Iterator& operator=(Iterator&&) = default;
+      Iterator& operator=(Iterator&& rhs) noexcept requires(std::movable<std::optional<Sub>>) = default;
+
+      Iterator& operator=(Iterator&& rhs) noexcept requires(!std::movable<std::optional<Sub>>)
+      {
+        if(std::addressof(rhs) != this){
+          _iterator = std::move(rhs._iterator);
+          _sentinel = std::move(rhs._sentinel);
+          _sub.emplace(std::move(rhs._sub));
+        }
+        return *this;
+      }
 
       Iterator& operator=(const Iterator&) = default;
 
