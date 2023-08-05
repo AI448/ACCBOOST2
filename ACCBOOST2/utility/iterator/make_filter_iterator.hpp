@@ -13,43 +13,49 @@ namespace ACCBOOST2
   namespace _utility_iterator_make_filter_iterator
   {
 
-    template<class FunctorT, class IteratorT, class LastIteratorT>
-    class LastFilterIterator;
 
-    template<class FunctorT, class IteratorT, class LastIteratorT>
+    template<class FunctorType, class SentinelType>
+    class FilterSentinel;
+
+
+    template<class FunctorType, class IteratorType, class SentinelType>
     class FilterIterator
     {
-      static_assert(!std::is_rvalue_reference_v<FunctorT>);
-      static_assert(!std::is_reference_v<IteratorT>);
-      static_assert(is_forward_iterator<IteratorT>);
-      static_assert(!std::is_reference_v<LastIteratorT>);
+      static_assert(!std::is_rvalue_reference_v<FunctorType>);
+      static_assert(!std::is_reference_v<IteratorType>);
+      static_assert(!std::is_const_v<IteratorType>);
+      static_assert(std::forward_iterator<IteratorType>);
+      static_assert(!std::is_reference_v<SentinelType>);
+      
+      static_assert(std::invocable<const FunctorType&, std::iter_reference_t<IteratorType>>);
+      static_assert(std::sentinel_for<SentinelType, IteratorType>);
 
     public:
 
       using iterator_category = std::forward_iterator_tag;
-      using difference_type = std::ptrdiff_t;
-      using reference = reference_of_iterator<IteratorT>;
-      using value_type = value_type_of_iterator<IteratorT>;
-      using pointer = pointer_of_iterator<IteratorT>;
+      using difference_type = typename std::iterator_traits<IteratorType>::difference_type;
+      using reference = typename std::iterator_traits<IteratorType>::reference;
+      using value_type = typename std::iterator_traits<IteratorType>::value_type;
+      using pointer = typename std::iterator_traits<IteratorType>::pointer;
 
     private:
 
-      [[no_unique_address]] FunctorT functor_;
-      [[no_unique_address]] IteratorT iterator_;
-      [[no_unique_address]] LastIteratorT last_iterator_;
+      [[no_unique_address]] ACCBOOST2::FunctorCapture<FunctorType> _functor;
+      [[no_unique_address]] IteratorType _iterator;
+      [[no_unique_address]] SentinelType _sentinel;
 
     public:
 
-      template<class F, class I, class L>
+      template<class F, class I, class S>
       requires(
-        std::is_constructible_v<FunctorT, F&&> &&
-        std::is_constructible_v<IteratorT, I&&> &&
-        std::is_constructible_v<LastIteratorT, L&&>
+        std::is_constructible_v<FunctorType, F&&> &&
+        std::is_constructible_v<IteratorType, I&&> &&
+        std::is_constructible_v<SentinelType, S&&>
       )
-      explicit FilterIterator(F&& f, I&& i, L&& l):
-        functor_(std::forward<F>(f)), iterator_(std::forward<I>(i)), last_iterator_(std::forward<L>(l))
+      explicit FilterIterator(F&& functor, I&& iterator, S&& sentinel):
+        _functor(std::forward<F>(functor)), _iterator(std::forward<I>(iterator)), _sentinel(std::forward<S>(sentinel))
       {
-        while(iterator_ != last_iterator_ && !functor_(*iterator_)) ++iterator_;
+        while(_iterator != _sentinel && !_functor(*_iterator)) ++_iterator;
       }
 
       FilterIterator() = default;
@@ -60,7 +66,7 @@ namespace ACCBOOST2
 
       bool operator==(const FilterIterator& rhs) const noexcept
       {
-        return iterator_ == rhs.iterator_;
+        return _iterator == rhs._iterator;
       }
 
       bool operator!=(const FilterIterator& rhs) const noexcept
@@ -68,21 +74,21 @@ namespace ACCBOOST2
         return !operator==(rhs);
       }
 
-      bool operator==(const LastFilterIterator<FunctorT, IteratorT, LastIteratorT>&) const noexcept
+      bool operator==(const FilterSentinel<FunctorType, SentinelType>&) const noexcept
       {
-        return iterator_ == last_iterator_;
+        return _iterator == _sentinel;
       }
 
-      bool operator!=(const LastFilterIterator<FunctorT, IteratorT, LastIteratorT>&) const noexcept
+      bool operator!=(const FilterSentinel<FunctorType, SentinelType>&) const noexcept
       {
-        return iterator_ != last_iterator_;
+        return _iterator != _sentinel;
       }
 
       reference operator*() const
       {
-        assert(iterator_ != last_iterator_);
-        assert(functor_(*iterator_));
-        return *iterator_;
+        assert(_iterator != _sentinel);
+        assert(_functor(*_iterator));
+        return *_iterator;
       }
 
       pointer operator->() const
@@ -92,40 +98,40 @@ namespace ACCBOOST2
 
       FilterIterator& operator++()
       {
-        assert(iterator_ != last_iterator_);
-        ++iterator_;
-        while(iterator_ != last_iterator_ && !functor_(*iterator_)) ++iterator_;
+        assert(_iterator != _sentinel);
+        ++_iterator;
+        while(_iterator != _sentinel && !_functor(*_iterator)) ++_iterator;
         return *this;
       }
 
-      // template<class This = FilterIterator>
-      //   requires(std::is_copy_constructible_v<This&>)
-      // FilterIterator operator++(int)
-      // {
-      //   auto tmp(*this);
-      //   ++(*this);
-      //   return tmp;
-      // }
+      FilterIterator operator++(int)
+      {
+        auto tmp(*this);
+        ++(*this);
+        return tmp;
+      }
 
     };
 
-    template<class FunctorT, class IteratorT, class LastIteratorT>
-    class LastFilterIterator
+    template<class FunctorType, class SentinelType>
+    class FilterSentinel
     {
     public:
 
-      // using iterator_category = std::forward_iterator_tag;
-      using difference_type = std::ptrdiff_t;
-      using reference = reference_of_iterator<IteratorT>;
-      using value_type = value_type_of_iterator<IteratorT>;
-      using pointer = pointer_of_iterator<IteratorT>;
-
-      bool operator==(const FilterIterator<FunctorT, IteratorT, LastIteratorT>& rhs) const noexcept
+      template<class I>
+      requires(
+        std::sentinel_for<SentinelType, I>
+      )
+      bool operator==(const FilterIterator<FunctorType, I, SentinelType>& rhs) const noexcept
       {
         return rhs == *this;
       }
 
-      bool operator!=(const FilterIterator<FunctorT, IteratorT, LastIteratorT>& rhs) const noexcept
+      template<class I>
+      requires(
+        std::sentinel_for<SentinelType, I>
+      )
+      bool operator!=(const FilterIterator<FunctorType, I, SentinelType>& rhs) const noexcept
       {
         return rhs != *this;
       }
@@ -134,24 +140,24 @@ namespace ACCBOOST2
 
   }
 
-  template<class FunctorT, class IteratorT, class LastIteratorT>
-  decltype(auto) make_filter_iterator(FunctorT&& functor, IteratorT&& iterator, LastIteratorT&& last_iterator)
+  template<class FunctorType, class IteratorType, class SentinelType>
+  decltype(auto) make_filter_iterator(FunctorType&& functor, IteratorType&& iterator, SentinelType&& sentinel)
   {
-    using functor_t = ACCBOOST2::capture_of<FunctorT&&>;
-    using iterator_t = std::remove_cv_t<std::remove_reference_t<IteratorT>>;
-    using last_iterator_t = std::remove_cv_t<std::remove_reference_t<LastIteratorT>>;
-    using filter_iterator_t = ACCBOOST2::_utility_iterator_make_filter_iterator::FilterIterator<functor_t, iterator_t, last_iterator_t>;
-    return filter_iterator_t(std::forward<FunctorT>(functor), std::forward<IteratorT>(iterator), std::forward<LastIteratorT>(last_iterator));
+    return ACCBOOST2::_utility_iterator_make_filter_iterator::FilterIterator<
+      FunctorType, std::remove_cv_t<std::remove_reference_t<IteratorType>>, std::remove_cv_t<std::remove_reference_t<SentinelType>>
+    >(
+      std::forward<FunctorType>(functor), std::forward<IteratorType>(iterator), std::forward<SentinelType>(sentinel)
+    );
   }
 
-  template<class FunctorT, class IteratorT, class LastIteratorT>
-  decltype(auto) make_last_filter_iterator(FunctorT&&, IteratorT&&, LastIteratorT&&)
+  template<class FunctorType, class SentinelType>
+  decltype(auto) make_filter_sentinel(FunctorType&&, SentinelType&&)
   {
-    using functor_t = ACCBOOST2::capture_of<FunctorT&&>;
-    using iterator_t = std::remove_cv_t<std::remove_reference_t<IteratorT>>;
-    using last_iterator_t = std::remove_cv_t<std::remove_reference_t<LastIteratorT>>;
-    using last_filter_iterator_t = ACCBOOST2::_utility_iterator_make_filter_iterator::LastFilterIterator<functor_t, iterator_t, last_iterator_t>;
-    return last_filter_iterator_t();
+    using functor_t = ACCBOOST2::capture_of<FunctorType&&>;
+    using sentinel_t = std::remove_cv_t<std::remove_reference_t<SentinelType>>;
+    return ACCBOOST2::_utility_iterator_make_filter_iterator::FilterSentinel<
+      functor_t, sentinel_t
+    >();
   }
 
 }

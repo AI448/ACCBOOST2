@@ -11,26 +11,26 @@ namespace ACCBOOST2
   namespace _utility_iterator_make_arrow_wrapper
   {
       
-    template<class ValueT>
+    template<class ValueType>
     class ArrowWrapper
     {
-      static_assert(!std::is_reference_v<ValueT>);
+      static_assert(!std::is_reference_v<ValueType>);
 
     private:
 
-      [[no_unique_address]] ValueT value_;
+      [[no_unique_address]] ValueType _value;
 
     public:
 
-      explicit ArrowWrapper(ValueT&& value) noexcept:
-        value_(std::move(value))
+      explicit ArrowWrapper(ValueType&& value) noexcept:
+        _value(std::move(value))
       {}
 
       ArrowWrapper(ArrowWrapper&&) = default;
 
       decltype(auto) operator->() const noexcept
       {
-        return std::addressof(value_); // note: 戻り値は const pointer となる．
+        return std::addressof(_value); // note: 戻り値は const pointer となる．
       }
 
     // deleted:
@@ -49,7 +49,7 @@ namespace ACCBOOST2
     if constexpr (std::is_lvalue_reference_v<X>){
       return std::addressof(x);
     }else{
-      return ACCBOOST2::_utility_iterator_make_arrow_wrapper::ArrowWrapper<X>(std::move(x));
+      return _utility_iterator_make_arrow_wrapper::ArrowWrapper<X>(std::move(x));
     }
   }
 

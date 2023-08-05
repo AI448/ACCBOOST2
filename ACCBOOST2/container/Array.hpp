@@ -69,7 +69,7 @@ namespace ACCBOOST2
 
     template<class RangeType>
     requires(
-       ACCBOOST2::is_range<RangeType>
+       std::ranges::range<RangeType>
      )
     Array(const RangeType& other):
       Array()
@@ -100,11 +100,11 @@ namespace ACCBOOST2
 
     template<class RangeType>
     requires(
-      ACCBOOST2::is_range<RangeType>
+      std::ranges::range<RangeType>
     )
     Array& operator=(const RangeType& range)
     {
-      static_assert(ACCBOOST2::is_range<RangeType>);
+      static_assert(std::ranges::range<RangeType>);
       clear();
       expand(range);
       return *this;
@@ -198,8 +198,8 @@ namespace ACCBOOST2
     template<class RangeType>
     void expand(const RangeType& x)
     {
-      static_assert(ACCBOOST2::is_range<RangeType>);
-      if constexpr (ACCBOOST2::is_random_access_range<RangeType>){
+      static_assert(std::ranges::range<RangeType>);
+      if constexpr (std::ranges::random_access_range<RangeType>){
         reserve(capacity() + (x.end() - x.begin()));
         for(auto&& y: x){
           push_back_without_allocation(std::forward<decltype(y)>(y));

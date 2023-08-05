@@ -12,224 +12,254 @@ namespace ACCBOOST2
   namespace _utility_iterator_make_map_iterator
   {
 
-    template<class F, class R>
-    struct reference_of_map_iterator
-    {
-      using type = std::conditional_t<
-        ACCBOOST2::META::is_valid_to_call_v<const F&, R&&>,
-        ACCBOOST2::META::result_of_call<const F&, R&&>,
-        void
-      >;
-    };
+    // template<class F, class R>
+    // struct reference_of_map_iterator
+    // {
+    //   using type = std::conditional_t<
+    //     ACCBOOST2::META::is_valid_to_call_v<const F&, R&&>,
+    //     ACCBOOST2::META::result_of_call<const F&, R&&>,
+    //     void
+    //   >;
+    // };
 
-    template<class F>
-    struct reference_of_map_iterator<F, void>
-    {
-      using type = void;
-    };
+    // template<class F>
+    // struct reference_of_map_iterator<F, void>
+    // {
+    //   using type = void;
+    // };
 
 
-    template<class FunctorT, class IteratorT>
+    template<class FunctorType, class SentinelType>
+    class MapSentinel;
+
+
+    template<class FunctorType, class IteratorType>
     class MapIterator
     {
-      static_assert(!std::is_rvalue_reference_v<FunctorT>);
-      static_assert(!std::is_reference_v<IteratorT>);
+      static_assert(!std::is_rvalue_reference_v<FunctorType>);
+      static_assert(!std::is_reference_v<IteratorType>);
+      static_assert(!std::is_const_v<IteratorType>);      
+      static_assert(std::forward_iterator<IteratorType>);
 
-      template<class, class>
-      friend class MapIterator;
+      static_assert(std::invocable<const FunctorType&, std::iter_reference_t<IteratorType>>);
 
     public:
 
-      using iterator_category = iterator_category_of_iterator<IteratorT>;
+      using iterator_category = typename std::iterator_traits<IteratorType>::iterator_category;
 
-      using difference_type = std::ptrdiff_t;
+      using difference_type = typename std::iterator_traits<IteratorType>::difference_type;
 
-      using reference = typename reference_of_map_iterator<FunctorT, reference_of_iterator<const IteratorT&>>::type;
+      using reference = std::invoke_result_t<const FunctorType&, typename std::iterator_traits<IteratorType>::reference>;
 
-      using value_type = std::conditional_t<
-        std::is_reference_v<reference>,
-        std::remove_reference_t<reference>,
-        void
-      >;
+      using value_type = std::remove_const_t<std::remove_reference_t<reference>>;
 
-      using pointer = std::conditional_t<
-        std::is_reference_v<reference>,
-        std::add_pointer_t<std::remove_reference_t<reference>>,
-        void
-      >;
+      using pointer = std::add_pointer_t<std::remove_reference_t<reference>>;
 
     private:
 
-      [[no_unique_address]] FunctorT functor_;
+      [[no_unique_address]] ACCBOOST2::FunctorCapture<FunctorType> functor_;
 
-      [[no_unique_address]] IteratorT iterator_;
+      [[no_unique_address]] IteratorType iterator_;
 
     public:
 
       template<class I>
-      MapIterator(FunctorT&& functor, I&& iterator):
-        functor_(std::forward<FunctorT>(functor)), iterator_(std::forward<I>(iterator))
+      requires(
+        std::constructible_from<IteratorType, I&&>
+      )
+      explicit MapIterator(FunctorType&& functor, I&& iterator):
+        functor_(std::forward<FunctorType>(functor)), iterator_(std::forward<I>(iterator))
       {}
 
       MapIterator() = default;
       MapIterator(MapIterator&&) = default;
       MapIterator(const MapIterator&) = default;
       ~MapIterator() = default;
-      MapIterator& operator=(MapIterator&&) = default;
-      MapIterator& operator=(const MapIterator&) = default;
 
-      template<class I>
-      requires(ACCBOOST2::META::is_valid_to_equal_v<const IteratorT&, const I&>)
-      bool operator==(const MapIterator<FunctorT, I>& other) const
+      MapIterator& operator=(MapIterator&& rhs)
+      {
+        iterator_ = std::move(rhs.iterator_);
+        return *this;
+      }
+
+      MapIterator& operator=(const MapIterator& rhs)
+      {
+        iterator_ = rhs.iterator_;
+        return *this;
+      }
+
+      decltype(auto) operator==(const MapIterator& other) const noexcept
       {
         return iterator_ == other.iterator_;
       }
 
-      template<class F, class I>
-      requires(ACCBOOST2::META::is_valid_to_inequal_v<const IteratorT&, const I&>)
-      bool operator!=(const MapIterator<F, I>& other) const
+      decltype(auto) operator!=(const MapIterator& other) const noexcept
       {
         return iterator_ != other.iterator_;
       }
 
-      template<class I>
-      requires(ACCBOOST2::META::is_valid_to_less_v<const IteratorT&, const I&>)
-      bool operator<(const MapIterator<FunctorT, I>& other) const
+      template<class S>
+      requires(
+        std::sentinel_for<S, IteratorType>
+      )
+      decltype(auto) operator==(const MapSentinel<FunctorType, S>& rhs) const noexcept
+      {
+        return iterator_ == rhs._sentinel;
+      }
+
+      template<class S>
+      requires(
+        std::sentinel_for<S, IteratorType>
+      )
+      decltype(auto) operator!=(const MapSentinel<FunctorType, S>& rhs) const noexcept
+      {
+        return !operator==(rhs);
+      }
+
+      bool operator<(const MapIterator& other) const requires(std::random_access_iterator<IteratorType>)
       {
         return iterator_ < other.iterator_;
       }
 
-      template<class I>
-      requires(ACCBOOST2::META::is_valid_to_greater_v<const IteratorT&, const I&>)
-      bool operator>(const MapIterator<FunctorT, I>& other) const
+      bool operator>(const MapIterator& other) const requires(std::random_access_iterator<IteratorType>)
       {
         return iterator_ > other.iterator_;
       }
 
-      template<class I>
-      requires(ACCBOOST2::META::is_valid_to_less_equal_v<const IteratorT&, const I&>)
-      bool operator<=(const MapIterator<FunctorT, I>& other) const
+      bool operator<=(const MapIterator& other) const requires(std::random_access_iterator<IteratorType>)
       {
         return iterator_ <= other.iterator_;
       }
 
-      template<class I>
-      requires(ACCBOOST2::META::is_valid_to_greater_equal_v<const IteratorT&, const I&>)
-      bool operator>=(const MapIterator<FunctorT, I>& other) const
+      bool operator>=(const MapIterator& other) const requires(std::random_access_iterator<IteratorType>)
       {
         return iterator_ >= other.iterator_;
       }
 
-      template<class I>
-      requires(ACCBOOST2::META::is_valid_to_subtract_v<const IteratorT&, const I&>)
-      decltype(auto) operator-(const MapIterator<FunctorT, I>& other) const
+      decltype(auto) operator-(const MapIterator& other) const requires(std::random_access_iterator<IteratorType>)
       {
         return iterator_ - other.iterator_;
       }
 
-      template<class IT = IteratorT>
-      requires(ACCBOOST2::META::is_valid_to_indirect_v<const IT&>)
       decltype(auto) operator*() const
       {
         return functor_(*iterator_);
       }
 
-      template<class IT = IteratorT>
-      requires(ACCBOOST2::META::is_valid_to_indirect_v<const IT&>)
       decltype(auto) operator->() const
       {
         return ACCBOOST2::make_arrow_wrapper(operator*());
       }
 
-      template<class IT = IteratorT>
-      requires(ACCBOOST2::META::is_valid_to_subscript_v<const IT&, const std::ptrdiff_t&>)
-      decltype(auto) operator[](difference_type d) const
+      decltype(auto) operator[](difference_type d) const requires(std::random_access_iterator<IteratorType>)
       {
         return functor_(iterator_[d]);
       }
 
-      template<class ThisT = MapIterator, class IT = IteratorT>
-      requires(
-        std::is_copy_constructible_v<ThisT> &&
-        ACCBOOST2::META::is_valid_to_add_v<const IT&, const difference_type&>
-      )
-      MapIterator operator+(difference_type d) const
+      MapIterator operator+(difference_type d) const requires(std::random_access_iterator<IteratorType>)
       {
         return MapIterator(functor_, iterator_ + d);
       }
 
-      template<class ThisT = MapIterator, class IT = IteratorT>
-      requires(
-        std::is_copy_constructible_v<ThisT> &&
-        ACCBOOST2::META::is_valid_to_subtract_v<const IT&, const difference_type&>
-      )
-      MapIterator operator-(difference_type d) const
+      MapIterator operator-(difference_type d) const requires(std::random_access_iterator<IteratorType>)
       {
         return MapIterator(functor_, iterator_ - d);        
       }
 
-      template<class IT = IteratorT>
-      requires(ACCBOOST2::META::is_valid_to_pre_inclement_v<IT&>)
       MapIterator& operator++()
       {
         ++iterator_;
         return *this;
       }
 
-      template<class IT = IteratorT>
-      requires(ACCBOOST2::META::is_valid_to_pre_declement_v<IT&>)
-      MapIterator& operator--()
+      MapIterator& operator--() requires(std::bidirectional_iterator<IteratorType>)
       {
         --iterator_;
         return *this;
       }
 
-      template<class IT = IteratorT>
-      requires(ACCBOOST2::META::is_valid_to_add_assign_v<IT&, const difference_type&>)
-      MapIterator& operator+=(difference_type d)
-      {
-        iterator_ += d;
-        return *this;
-      }
-
-      template<class IT = IteratorT>
-      requires(ACCBOOST2::META::is_valid_to_subtract_assign_v<IT&, const difference_type&>)
-      MapIterator& operator-=(difference_type d)
-      {
-        iterator_ -= d;
-        return *this;
-      }
-
-      template<class ThisT = MapIterator, class IT = IteratorT>
-      requires(
-        std::is_copy_constructible_v<ThisT> &&
-        ACCBOOST2::META::is_valid_to_post_inclement_v<IT&>
-      )
       MapIterator operator++(int)
       {
         return MapIterator(functor_, iterator_++);
       }
 
-      template<class ThisT = MapIterator, class IT = IteratorT>
-      requires(
-        std::is_copy_constructible_v<ThisT> &&
-        ACCBOOST2::META::is_valid_to_post_declement_v<IT&>
-      )
-      MapIterator operator--(int)
+      MapIterator operator--(int) requires(std::bidirectional_iterator<IteratorType>)
       {
         return MapIterator(functor_, iterator_--);
       }
 
+      MapIterator& operator+=(difference_type d) requires(std::random_access_iterator<IteratorType>)
+      {
+        iterator_ += d;
+        return *this;
+      }
+
+      MapIterator& operator-=(difference_type d) requires(std::random_access_iterator<IteratorType>)
+      {
+        iterator_ -= d;
+        return *this;
+      }
+
     };
 
+
+    template<class FunctorType, class SentinelType>
+    class MapSentinel
+    {
+      template<class, class>
+      friend class MapIterator;
+
+    private:
+
+      SentinelType _sentinel;
+
+    public:
+
+      explicit MapSentinel(SentinelType&& sentinel) noexcept(std::is_nothrow_constructible_v<SentinelType, SentinelType&&>):
+        _sentinel(std::forward<SentinelType>(sentinel))
+      {}
+
+      MapSentinel() = default;
+      MapSentinel(MapSentinel&&) = default;
+      MapSentinel(const MapSentinel&) = default;
+      MapSentinel& operator=(MapSentinel&&) = default;
+      MapSentinel& operator=(const MapSentinel&) = default;
+
+      template<class I>
+      requires(
+        std::sentinel_for<SentinelType, I>
+      )
+      decltype(auto) operator==(const MapIterator<FunctorType, I>& rhs) const noexcept
+      {
+        return rhs == *this;
+      }
+
+      template<class I>
+      requires(
+        std::sentinel_for<SentinelType, I>
+      )
+      decltype(auto) operator!=(const MapIterator<FunctorType, I>& rhs) const noexcept
+      {
+        return rhs != *this;
+      }
+
+    };
+
+
   }
 
 
-  template<class FunctorT, class IteratorT>
-  decltype(auto) make_map_iterator(FunctorT&& f, IteratorT&& i)
+  template<class FunctorType, class IteratorType>
+  decltype(auto) make_map_iterator(FunctorType&& f, IteratorType&& i)
   {
-    return ACCBOOST2::_utility_iterator_make_map_iterator::MapIterator<FunctorT, std::remove_cv_t<std::remove_reference_t<IteratorT>>>(std::forward<FunctorT>(f), std::forward<IteratorT>(i));
+    using T = std::conditional_t<
+      std::forward_iterator<IteratorType>,
+      _utility_iterator_make_map_iterator::MapIterator<FunctorType, std::remove_cv_t<std::remove_reference_t<IteratorType>>>,
+      _utility_iterator_make_map_iterator::MapSentinel<FunctorType, std::remove_cv_t<std::remove_reference_t<IteratorType>>>
+    >;
+    return T(std::forward<FunctorType>(f), std::forward<IteratorType>(i));
   }
+
 
 }
 

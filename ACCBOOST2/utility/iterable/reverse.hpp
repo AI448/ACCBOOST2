@@ -4,8 +4,8 @@
 
 #include "../misc.hpp"
 #include "../iterator.hpp"
-#include "is_range.hpp"
 #include "zip.hpp"
+#include "wrapp_initializer_list.hpp"
 
 
 namespace ACCBOOST2
@@ -14,22 +14,22 @@ namespace ACCBOOST2
   namespace _utility_iterable_reverse
   {
 
-    template<class RangeT>
+    template<class RangeType>
     class ReversedRange
     {
-      static_assert(!std::is_rvalue_reference_v<RangeT>);
-      static_assert(!std::is_const_v<RangeT>);
+      static_assert(!std::is_rvalue_reference_v<RangeType>);
+      static_assert(!std::is_const_v<RangeType>);
 
     private:
 
-      [[no_unique_address]] RangeT range_;
+      [[no_unique_address]] RangeType _range;
 
     public:
 
       template<class T>
         requires(!std::is_same_v<std::remove_cv_t<std::remove_reference_t<T>>, ReversedRange>)
       explicit ReversedRange(T&& range):
-        range_(std::forward<T>(range))
+        _range(std::forward<T>(range))
       {}
 
       ReversedRange() = default;
@@ -40,30 +40,22 @@ namespace ACCBOOST2
 
       decltype(auto) begin()
       {
-        using std::end;
-        auto i = end(range_);
-        return ACCBOOST2::make_reverse_iterator(std::move(--i));
+        return ACCBOOST2::make_reverse_iterator(std::end(_range));
       }
 
       decltype(auto) end()
       {
-        using std::begin;
-        auto i = begin(range_);
-        return ACCBOOST2::make_reverse_iterator(std::move(--i));
+        return ACCBOOST2::make_reverse_iterator(std::begin(_range));
       }
 
       decltype(auto) begin() const
       {
-        using std::end;
-        auto i = end(range_);
-        return ACCBOOST2::make_reverse_iterator(std::move(--i));
+        return ACCBOOST2::make_reverse_iterator(std::end(_range));
       }
 
       decltype(auto) end() const
       {
-        using std::begin;
-        auto i = begin(range_);
-        return ACCBOOST2::make_reverse_iterator(std::move(--i));
+        return ACCBOOST2::make_reverse_iterator(std::begin(_range));
       }
 
     };
@@ -72,7 +64,7 @@ namespace ACCBOOST2
 
   template<class X>
   requires(
-    ACCBOOST2::is_bidirectional_range<X> &&
+    std::ranges::bidirectional_range<X> &&
     !ACCBOOST2::is_array<std::remove_reference_t<X>>
   )
   decltype(auto) reverse(X&& x)
@@ -87,7 +79,7 @@ namespace ACCBOOST2
   template<class... X>
   requires(
     sizeof...(X) >= 2 &&
-    (... && ACCBOOST2::is_bidirectional_range<X>) &&
+    (... && std::ranges::bidirectional_range<X>) &&
     !(... && ACCBOOST2::is_array<std::remove_reference_t<X>>)
   )
   decltype(auto) reverse(X&&... x)

@@ -4,7 +4,7 @@
 
 #include <limits>
 #include "../misc.hpp"
-#include "is_range.hpp"
+#include "../iterator.hpp"
 
 
 namespace ACCBOOST2
@@ -40,7 +40,7 @@ namespace ACCBOOST2
       template<class FI = FirstIterator, class LI = LastIterator>
       requires(
         std::is_same_v<FI, LI> &&
-        ACCBOOST2::is_random_access_iterator<FI>
+        std::random_access_iterator<FI>
       )
       decltype(auto) size() const noexcept
       {
@@ -50,7 +50,7 @@ namespace ACCBOOST2
       template<class I, class FI = FirstIterator, class LI = LastIterator>
       requires(
         std::is_same_v<FI, LI> &&
-        ACCBOOST2::is_random_access_iterator<FI> &&
+        std::random_access_iterator<FI> &&
         ACCBOOST2::META::is_valid_to_subscript_v<const FI&, const I&>
       )
       decltype(auto) operator[](const I& i) const noexcept
@@ -91,8 +91,8 @@ namespace ACCBOOST2
 
   template<class First, class Last>
   requires(
-    ACCBOOST2::is_forward_iterator<std::remove_cv_t<std::remove_reference_t<First>>> &&
-    ACCBOOST2::is_forward_iterator<std::remove_cv_t<std::remove_reference_t<Last>>>
+    std::forward_iterator<std::remove_cv_t<std::remove_reference_t<First>>> &&
+    std::sentinel_for<std::remove_cv_t<std::remove_reference_t<Last>>, std::remove_cv_t<std::remove_reference_t<First>>>
   )
   decltype(auto) range(First&& first, Last&& last)
   {
