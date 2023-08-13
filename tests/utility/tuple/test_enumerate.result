@@ -1,0 +1,1 @@
+std::tuple<std::tuple<unsigned long, int&>, std::tuple<unsigned long, double&>, std::tuple<unsigned long, char&> >&&	((0,1),(1,0.1),(2,c))

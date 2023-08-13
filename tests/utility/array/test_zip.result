@@ -1,0 +1,2 @@
+std::array<std::tuple<int&, double, char&>, 2ul>&&	[(1,0.1,x),(2,0.2,y)]
+std::tuple<ACCBOOST2::StaticReferenceArray<int&, 2ul>, std::array<double, 2ul>, ACCBOOST2::StaticReferenceArray<char&, 2ul> >&&	([1,2],[0.1,0.2],[x,y])

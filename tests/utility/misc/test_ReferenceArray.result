@@ -1,0 +1,2 @@
+ACCBOOST2::StaticReferenceArray<int&, 3ul>&	[1,2,3]
+ACCBOOST2::StaticReferenceArray<int&, 3ul>&	[5,4,3]

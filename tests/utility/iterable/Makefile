@@ -11,7 +11,7 @@ RESULTS=$(patsubst %, %.result, $(TESTS))
 OUTS=$(patsubst %, %.out, $(TESTS))
 DEPENDS=$(patsubst %, %.d, $(TESTS))
 
-CXXFLAGS=-std=c++20 -W -Wall -g -O2 -I../../../ACCBOOST2/utility/iterable -I../..
+CXXFLAGS=-std=c++20 -W -Wall -fconcepts-diagnostics-depth=10 -g -O2 -I../../../ACCBOOST2/utility/iterable -I../..
 
 
 all: $(RESULTS)

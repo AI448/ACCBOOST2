@@ -1,0 +1,1 @@
+std::array<std::tuple<unsigned long, int&, double, char&>, 2ul>&&	[(0,1,0.1,x),(1,2,0.2,y)]

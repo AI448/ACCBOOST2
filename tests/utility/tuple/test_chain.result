@@ -1,0 +1,3 @@
+std::tuple<int&, double&, char&>&&	(1,2.2,c)
+std::tuple<int&, double&, char&, std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, double>&&	(1,2.2,c,four,5.5)
+std::tuple<int&, double&, char&, int&, double&, char&, int&, double&, char&>&&	(1,2.2,c,1,2.2,c,1,2.2,c)
