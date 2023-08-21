@@ -200,6 +200,7 @@ namespace ACCBOOST2
   template<class IntegerT, class... IteratorTypes>
   decltype(auto) make_random_access_zip_iterator(IntegerT&& integer, IteratorTypes&&... iterators)
   {
+    static_assert((... && std::random_access_iterator<std::remove_cv_t<std::remove_reference_t<IteratorTypes>>>));
     using zip_iterator_t = _utility_iterator_make_random_access_zip_iterator::RandomAccessZipIterator<
       std::remove_cv_t<std::remove_reference_t<IteratorTypes>>...
     >;
@@ -210,6 +211,7 @@ namespace ACCBOOST2
   template<class IntegerT, class... IteratorTypes>
   decltype(auto) make_random_access_enumerate_iterator(IntegerT&& integer, IteratorTypes&&... iterators)
   {
+    static_assert((... && std::random_access_iterator<std::remove_cv_t<std::remove_reference_t<IteratorTypes>>>));
     using enumerate_iterator_t = _utility_iterator_make_random_access_zip_iterator::RandomAccessEnumerateIterator<
       std::remove_cv_t<std::remove_reference_t<IteratorTypes>>...
     >;

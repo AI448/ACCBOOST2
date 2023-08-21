@@ -15,15 +15,15 @@ namespace ACCBOOST2
   {
 
 
-    template<class SnetinelType>
+    template<class SentinelType>
     class Sentinel;
 
 
-    template<class IteratorType, class SnetinelType>
+    template<class IteratorType, class SentinelType>
     class Iterator
     {
       static_assert(std::input_iterator<IteratorType>);
-      static_assert(std::sentinel_for<SnetinelType, IteratorType>);
+      static_assert(std::sentinel_for<SentinelType, IteratorType>);
       static_assert(std::ranges::range<std::iter_reference_t<IteratorType>>);
 
     private:
@@ -69,7 +69,7 @@ namespace ACCBOOST2
     private:
 
       [[no_unique_address]] IteratorType _iterator;
-      [[no_unique_address]] SnetinelType _sentinel;
+      [[no_unique_address]] SentinelType _sentinel;
       [[no_unique_address]] std::optional<Sub> _sub;
 
     public:
@@ -81,9 +81,9 @@ namespace ACCBOOST2
       template<class I, class S>
       requires(
         std::is_constructible_v<IteratorType, I&&> &&
-        std::is_constructible_v<SnetinelType, S&&>
+        std::is_constructible_v<SentinelType, S&&>
       )
-      Iterator(I&& iterator, S&& sentinel) noexcept(std::is_nothrow_constructible_v<IteratorType, I&&> && std::is_nothrow_constructible_v<SnetinelType, S&&>):
+      Iterator(I&& iterator, S&& sentinel) noexcept(std::is_nothrow_constructible_v<IteratorType, I&&> && std::is_nothrow_constructible_v<SentinelType, S&&>):
         _iterator(std::forward<I>(iterator)), _sentinel(std::forward<S>(sentinel)), _sub()
       {
         if(_iterator != _sentinel){
@@ -127,12 +127,12 @@ namespace ACCBOOST2
         return !operator==(rhs);
       }
 
-      bool operator==(const Sentinel<SnetinelType>&) const noexcept
+      bool operator==(const Sentinel<SentinelType>&) const noexcept
       {
         return _iterator == _sentinel;
       }
 
-      bool operator!=(const Sentinel<SnetinelType>&) const noexcept
+      bool operator!=(const Sentinel<SentinelType>&) const noexcept
       {
         return _iterator != _sentinel;
       }
@@ -173,25 +173,27 @@ namespace ACCBOOST2
 
     };
 
-    template<class SnetinelType>
+    template<class SentinelType>
     class Sentinel
     {
+      static_assert(std::semiregular<SentinelType>);
+
     public:
 
       template<class I>
       requires(
-        std::sentinel_for<I, SnetinelType>
+        std::sentinel_for<I, SentinelType>
       )
-      bool operator==(const Iterator<I, SnetinelType>& rhs) const noexcept
+      bool operator==(const Iterator<I, SentinelType>& rhs) const noexcept
       {
         return rhs == *this;
       }
 
       template<class I>
       requires(
-        std::sentinel_for<I, SnetinelType>
+        std::sentinel_for<I, SentinelType>
       )
-      bool operator!=(const Iterator<I, SnetinelType>& rhs) const noexcept
+      bool operator!=(const Iterator<I, SentinelType>& rhs) const noexcept
       {
         return rhs != *this;
       }
@@ -200,21 +202,21 @@ namespace ACCBOOST2
 
   }
 
-  template<class IteratorType, class SnetinelType>
-  decltype(auto) make_chain_from_iterable_iterator(IteratorType&& first, SnetinelType&& last)
+  template<class IteratorType, class SentinelType>
+  decltype(auto) make_chain_from_iterable_iterator(IteratorType&& first, SentinelType&& last)
   {
     return _utility_iterator_make_chain_from_iterable_iterator::Iterator<
-      std::remove_cv_t<std::remove_reference_t<IteratorType>>, std::remove_cv_t<std::remove_reference_t<SnetinelType>>
+      std::remove_cv_t<std::remove_reference_t<IteratorType>>, std::remove_cv_t<std::remove_reference_t<SentinelType>>
     >(
-      std::forward<IteratorType>(first), std::forward<SnetinelType>(last)
+      std::forward<IteratorType>(first), std::forward<SentinelType>(last)
     );
   }
 
-  template<class SnetinelType>
-  decltype(auto) make_chain_from_iterable_sentinel(SnetinelType&&)
+  template<class SentinelType>
+  decltype(auto) make_chain_from_iterable_sentinel(SentinelType&&)
   {
     return _utility_iterator_make_chain_from_iterable_iterator::Sentinel<
-      std::remove_cv_t<std::remove_reference_t<SnetinelType>>
+      std::remove_cv_t<std::remove_reference_t<SentinelType>>
     >();
   }
 

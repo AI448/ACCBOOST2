@@ -3,7 +3,6 @@
 
 
 #include "map.hpp"
-#include "wrapp_initializer_list.hpp"
 
 
 namespace ACCBOOST2
@@ -21,14 +20,14 @@ namespace ACCBOOST2
     return false;
   }
 
-  template<class X, class Y>
-  bool in(X&& x, const std::initializer_list<Y>& y)
-  {
-    for(auto&& z: y){
-      if(x == z) return true;
-    }
-    return false;
-  }
+  // template<class X, class Y>
+  // bool in(X&& x, const std::initializer_list<Y>& y)
+  // {
+  //   for(auto&& z: y){
+  //     if(x == z) return true;
+  //   }
+  //   return false;
+  // }
 
   template<class F, class R>
   requires(
@@ -39,11 +38,11 @@ namespace ACCBOOST2
     return !in(false, ACCBOOST2::map(std::forward<F>(f), std::forward<R>(r)));
   }
 
-  template<class F, class X>
-  bool all(F&& f, const std::initializer_list<X>& x)
-  {
-    return !in(false, ACCBOOST2::map(std::forward<F>(f), x));
-  }
+  // template<class F, class X>
+  // bool all(F&& f, const std::initializer_list<X>& x)
+  // {
+  //   return !in(false, ACCBOOST2::map(std::forward<F>(f), x));
+  // }
 
   template<class F, class R>
   requires(
@@ -54,11 +53,11 @@ namespace ACCBOOST2
     return in(true, ACCBOOST2::map(std::forward<F>(f), std::forward<R>(r)));
   }
 
-  template<class F, class X>
-  bool any(F&& f, const std::initializer_list<X>& x)
-  {
-    return in(true, ACCBOOST2::map(std::forward<F>(f), x));
-  }
+  // template<class F, class X>
+  // bool any(F&& f, const std::initializer_list<X>& x)
+  // {
+  //   return in(true, ACCBOOST2::map(std::forward<F>(f), x));
+  // }
 
 }
 

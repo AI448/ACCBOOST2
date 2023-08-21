@@ -6,7 +6,6 @@
 #include <limits>
 #include "../tuple.hpp"
 #include "../iterator.hpp"
-#include "wrapp_initializer_list.hpp"
 
 
 namespace ACCBOOST2
@@ -61,7 +60,7 @@ namespace ACCBOOST2
             // ランダムアクセス不可能なイテレータが存在する場合
             if constexpr (WithEnumeration){
               // enumerate の場合
-              return ACCBOOST2::make_enumerated_iterator(0, begin(r)...);
+              return ACCBOOST2::make_enumerated_iterator(static_cast<std::ptrdiff_t>(0), begin(r)...);
             }else{
               // zip の場合
               return ACCBOOST2::make_zip_iterator(begin(r)...);
@@ -90,10 +89,10 @@ namespace ACCBOOST2
             // ランダムアクセス不可能なイテレータが存在する場合
             if constexpr (WithEnumeration){
               // enumerate の場合
-              return ACCBOOST2::make_enumerated_iterator(std::numeric_limits<std::ptrdiff_t>::max(), end(r)...);
+              return ACCBOOST2::make_enumerated_iterator_or_sentinel(std::numeric_limits<std::ptrdiff_t>::max(), end(r)...);
             }else{
               // zip の場合
-              return ACCBOOST2::make_zip_iterator(end(r)...);
+              return ACCBOOST2::make_zip_iterator_or_sentinel(end(r)...);
             }
           }
         }, ranges_);
@@ -182,25 +181,25 @@ namespace ACCBOOST2
   }
 
 
-  template<class X>
-  decltype(auto) enumerate(std::initializer_list<X>&& x)
-  {
-    return ACCBOOST2::enumerate(ACCBOOST2::wrapp_initializer_list(std::move(x)));
-  }
+  // template<class X>
+  // decltype(auto) enumerate(std::initializer_list<X>&& x)
+  // {
+  //   return ACCBOOST2::enumerate(ACCBOOST2::wrapp_initializer_list(std::move(x)));
+  // }
 
 
-  template<class X>
-  decltype(auto) enumerate(std::initializer_list<X>& x)
-  {
-    return ACCBOOST2::enumerate(ACCBOOST2::wrapp_initializer_list(x));
-  }
+  // template<class X>
+  // decltype(auto) enumerate(std::initializer_list<X>& x)
+  // {
+  //   return ACCBOOST2::enumerate(ACCBOOST2::wrapp_initializer_list(x));
+  // }
 
 
-  template<class X>
-  decltype(auto) enumerate(const std::initializer_list<X>& x)
-  {
-    return ACCBOOST2::enumerate(ACCBOOST2::wrapp_initializer_list(x));
-  }
+  // template<class X>
+  // decltype(auto) enumerate(const std::initializer_list<X>& x)
+  // {
+  //   return ACCBOOST2::enumerate(ACCBOOST2::wrapp_initializer_list(x));
+  // }
 
 
 }

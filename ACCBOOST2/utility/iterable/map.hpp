@@ -5,7 +5,6 @@
 #include "../misc.hpp"
 #include "../iterator.hpp"
 #include "zip.hpp"
-#include "wrapp_initializer_list.hpp"
 
 
 namespace ACCBOOST2
@@ -49,7 +48,7 @@ namespace ACCBOOST2
       decltype(auto) end() const
       {
         using std::end;
-        return ACCBOOST2::make_map_iterator(functor_, end(range_));
+        return ACCBOOST2::make_map_iterator_or_sentinel(functor_, end(range_));
       }
 
       decltype(auto) begin()
@@ -61,7 +60,7 @@ namespace ACCBOOST2
       decltype(auto) end()
       {
         using std::end;
-        return ACCBOOST2::make_map_iterator(functor_, end(range_));
+        return ACCBOOST2::make_map_iterator_or_sentinel(functor_, end(range_));
       }
 
     };
@@ -95,25 +94,25 @@ namespace ACCBOOST2
   }
 
 
-  template<class F, class X>
-  decltype(auto) map(F&& f, std::initializer_list<X>&& x)
-  {
-    return ACCBOOST2::map(std::forward<F>(f), ACCBOOST2::wrapp_initializer_list(std::move(x)));
-  }
+  // template<class F, class X>
+  // decltype(auto) map(F&& f, std::initializer_list<X>&& x)
+  // {
+  //   return ACCBOOST2::map(std::forward<F>(f), ACCBOOST2::wrapp_initializer_list(std::move(x)));
+  // }
 
 
-  template<class F, class X>
-  decltype(auto) map(F&& f, std::initializer_list<X>& x)
-  {
-    return ACCBOOST2::map(std::forward<F>(f), ACCBOOST2::wrapp_initializer_list(x));
-  }
+  // template<class F, class X>
+  // decltype(auto) map(F&& f, std::initializer_list<X>& x)
+  // {
+  //   return ACCBOOST2::map(std::forward<F>(f), ACCBOOST2::wrapp_initializer_list(x));
+  // }
 
 
-  template<class F, class X>
-  decltype(auto) map(F&& f, const std::initializer_list<X>& x)
-  {
-    return ACCBOOST2::map(std::forward<F>(f), ACCBOOST2::wrapp_initializer_list(x));
-  }
+  // template<class F, class X>
+  // decltype(auto) map(F&& f, const std::initializer_list<X>& x)
+  // {
+  //   return ACCBOOST2::map(std::forward<F>(f), ACCBOOST2::wrapp_initializer_list(x));
+  // }
 
 
 }

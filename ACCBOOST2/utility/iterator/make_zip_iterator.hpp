@@ -120,7 +120,8 @@ namespace ACCBOOST2
     class ZipSentinel
     {
       static_assert(sizeof...(SentinelTypes) > 0);
-      
+      static_assert((... && std::semiregular<SentinelTypes>));
+
       template<class, class>
       friend class ZipIterator;
 
@@ -210,27 +211,44 @@ namespace ACCBOOST2
   template<class... IteratorTypes>
   decltype(auto) make_zip_iterator(IteratorTypes&&... iterators)
   {
-    using T = std::conditional_t<
-      (... && std::input_iterator<std::remove_cv_t<std::remove_reference_t<IteratorTypes>>>),
-      _utility_iterator_make_zip_iterator::ZippedIterator<std::remove_cv_t<std::remove_reference_t<IteratorTypes>>...>,
-      _utility_iterator_make_zip_iterator::ZippedSentinel<std::remove_cv_t<std::remove_reference_t<IteratorTypes>>...>
-    >;
-    return T(std::forward<IteratorTypes>(iterators)...);
+    static_assert((... && std::input_iterator<std::remove_cv_t<std::remove_reference_t<IteratorTypes>>>));
+    return _utility_iterator_make_zip_iterator::ZippedIterator<std::remove_cv_t<std::remove_reference_t<IteratorTypes>>...>(std::forward<IteratorTypes>(iterators)...);
   }
 
+  template<class... IteratorTypes>
+  decltype(auto) make_zip_iterator_or_sentinel(IteratorTypes&&... iterators)
+  {
+    if constexpr ((... && std::forward_iterator<std::remove_cv_t<std::remove_reference_t<IteratorTypes>>>)){
+      return make_zip_iterator(std::forward<IteratorTypes>(iterators)...);
+    }else{
+      return _utility_iterator_make_zip_iterator::ZippedSentinel<std::remove_cv_t<std::remove_reference_t<IteratorTypes>>...>(std::forward<IteratorTypes>(iterators)...);
+    }
+  }
 
   template<class... IteratorTypes>
   decltype(auto) make_enumerated_iterator(const std::size_t& integer, IteratorTypes&&... iterators)
   {
-    auto integer_iterator = ACCBOOST2::make_integer_iterator(integer);    
-    using T = std::conditional_t<
-      (... && std::input_iterator<std::remove_cv_t<std::remove_reference_t<IteratorTypes>>>),
-      _utility_iterator_make_zip_iterator::EnumeratedIterator<decltype(integer_iterator), std::remove_cv_t<std::remove_reference_t<IteratorTypes>>...>,
-      _utility_iterator_make_zip_iterator::EnumeratedSentinel<decltype(integer_iterator), std::remove_cv_t<std::remove_reference_t<IteratorTypes>>...>
-    >;
-    return T(std::move(integer_iterator), std::forward<IteratorTypes>(iterators)...);
+    static_assert((... && std::input_iterator<std::remove_cv_t<std::remove_reference_t<IteratorTypes>>>));
+    return _utility_iterator_make_zip_iterator::EnumeratedIterator<
+      decltype(ACCBOOST2::make_integer_iterator(integer)), std::remove_cv_t<std::remove_reference_t<IteratorTypes>>...
+    >(
+      ACCBOOST2::make_integer_iterator(integer), std::forward<IteratorTypes>(iterators)...
+    );
   }
 
+  template<class... IteratorTypes>
+  decltype(auto) make_enumerated_iterator_or_sentinel(const std::size_t& integer, IteratorTypes&&... iterators)
+  {
+    if constexpr ((... && std::forward_iterator<std::remove_cv_t<std::remove_reference_t<IteratorTypes>>>)){
+      return make_enumerated_iterator(integer, std::forward<IteratorTypes>(iterators)...);
+    }else{
+      return _utility_iterator_make_zip_iterator::EnumeratedSentinel<
+        decltype(ACCBOOST2::make_integer_iterator(integer)), std::remove_cv_t<std::remove_reference_t<IteratorTypes>>...
+      >(
+        ACCBOOST2::make_integer_iterator(integer), std::forward<IteratorTypes>(iterators)...
+      );
+    }
+  }
 
 }
 

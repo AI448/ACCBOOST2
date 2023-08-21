@@ -5,7 +5,6 @@
 #include "../misc.hpp"
 #include "../iterator.hpp"
 #include "zip.hpp"
-#include "wrapp_initializer_list.hpp"
 
 
 namespace ACCBOOST2
@@ -51,7 +50,7 @@ namespace ACCBOOST2
       {
         using std::begin;
         using std::end;
-        return ACCBOOST2::make_filter_sentinel(functor_, end(range_));
+        return ACCBOOST2::make_filter_sentinel(end(range_));
       }
 
       decltype(auto) begin()
@@ -65,7 +64,7 @@ namespace ACCBOOST2
       {
         using std::begin;
         using std::end;
-        return ACCBOOST2::make_filter_sentinel(functor_, end(range_));
+        return ACCBOOST2::make_filter_sentinel(end(range_));
       }
 
     };
@@ -96,25 +95,25 @@ namespace ACCBOOST2
   }
 
 
-  template<class F, class X>
-  decltype(auto) filter(F&& f, std::initializer_list<X>&& x)
-  {
-    return ACCBOOST2::filter(std::forward<F>(f), ACCBOOST2::wrapp_initializer_list(std::move(x)));
-  }
+  // template<class F, class X>
+  // decltype(auto) filter(F&& f, std::initializer_list<X>&& x)
+  // {
+  //   return ACCBOOST2::filter(std::forward<F>(f), ACCBOOST2::wrapp_initializer_list(std::move(x)));
+  // }
 
 
-  template<class F, class X>
-  decltype(auto) filter(F&& f, std::initializer_list<X>& x)
-  {
-    return ACCBOOST2::filter(std::forward<F>(f), ACCBOOST2::wrapp_initializer_list(x));
-  }
+  // template<class F, class X>
+  // decltype(auto) filter(F&& f, std::initializer_list<X>& x)
+  // {
+  //   return ACCBOOST2::filter(std::forward<F>(f), ACCBOOST2::wrapp_initializer_list(x));
+  // }
 
 
-  template<class F, class X>
-  decltype(auto) filter(F&& f, const std::initializer_list<X>& x)
-  {
-    return ACCBOOST2::filter(std::forward<F>(f), ACCBOOST2::wrapp_initializer_list(x));
-  }
+  // template<class F, class X>
+  // decltype(auto) filter(F&& f, const std::initializer_list<X>& x)
+  // {
+  //   return ACCBOOST2::filter(std::forward<F>(f), ACCBOOST2::wrapp_initializer_list(x));
+  // }
 
 
 }
