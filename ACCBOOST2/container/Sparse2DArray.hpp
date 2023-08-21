@@ -368,25 +368,19 @@ private:
       return make_iterator(_sparse_2d_array._list_headers[Direction][_index].end());
     }
 
-    // template<class X = Sparse2DArrayType>
-    // requires(!std::is_const_v<X>)
     decltype(auto) begin() noexcept
     {
       return make_iterator(_sparse_2d_array._list_headers[Direction][_index].begin());
     }
 
-    // template<class X = Sparse2DArrayType>
-    // requires(!std::is_const_v<X>)
     decltype(auto) end() noexcept
     {
       return make_iterator(_sparse_2d_array._list_headers[Direction][_index].end());
     }
 
-    template<class X = Sparse2DArrayType>
-    requires(!std::is_const_v<X>)
-    void clear() noexcept
+    void clear() noexcept requires(!std::is_const_v<Sparse2DArrayType>)
     {
-      _sparse_2d_array.clear<Direction>(_index);
+      _sparse_2d_array. template clear<Direction>(_index);
     }
 
   };

@@ -5,7 +5,6 @@
 #include "../misc.hpp"
 #include "../iterator.hpp"
 #include "zip.hpp"
-#include "wrapp_initializer_list.hpp"
 
 
 namespace ACCBOOST2
@@ -87,23 +86,23 @@ namespace ACCBOOST2
     return ACCBOOST2::zip(ACCBOOST2::reverse(std::forward<X>(x))...);
   }
 
-  template<class X>
-  decltype(auto) reverse(const std::initializer_list<X>& x)
-  {
-    return ACCBOOST2::_utility_iterable_reverse::ReversedRange<const std::initializer_list<X>&>(x);
-  }
+  // template<class X>
+  // decltype(auto) reverse(const std::initializer_list<X>& x)
+  // {
+  //   return ACCBOOST2::_utility_iterable_reverse::ReversedRange<const std::initializer_list<X>&>(x);
+  // }
 
-  template<class X>
-  decltype(auto) reverse(std::initializer_list<X>& x)
-  {
-    return ACCBOOST2::_utility_iterable_reverse::ReversedRange<std::initializer_list<X>&>(x);
-  }
+  // template<class X>
+  // decltype(auto) reverse(std::initializer_list<X>& x)
+  // {
+  //   return ACCBOOST2::_utility_iterable_reverse::ReversedRange<std::initializer_list<X>&>(x);
+  // }
 
-  template<class X>
-  decltype(auto) reverse(std::initializer_list<X>&& x)
-  {
-    return ACCBOOST2::_utility_iterable_reverse::ReversedRange<std::initializer_list<X>>(std::move(x));
-  }
+  // template<class X>
+  // decltype(auto) reverse(std::initializer_list<X>&& x)
+  // {
+  //   return ACCBOOST2::_utility_iterable_reverse::ReversedRange<std::initializer_list<X>>(std::move(x));
+  // }
 
 }
 

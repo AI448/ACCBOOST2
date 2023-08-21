@@ -3,7 +3,6 @@
 
 
 #include "../iterator.hpp"
-#include "wrapp_initializer_list.hpp"
 
 
 namespace ACCBOOST2
@@ -58,32 +57,32 @@ namespace ACCBOOST2
     return ACCBOOST2::_utility_iterable_chain_from_iterable::ChainedRange<ACCBOOST2::capture_of<X&&>>(std::forward<X>(x));
   }
 
-  template<class X>
-	requires(
-    std::ranges::range<X>
-  )
-  decltype(auto) chain_from_iterable(std::initializer_list<X>&& x)
-  {
-    return ACCBOOST2::chain_from_iterable(ACCBOOST2::wrapp_initializer_list(std::move(x)));
-  }
+  // template<class X>
+	// requires(
+  //   std::ranges::range<X>
+  // )
+  // decltype(auto) chain_from_iterable(std::initializer_list<X>&& x)
+  // {
+  //   return ACCBOOST2::chain_from_iterable(ACCBOOST2::wrapp_initializer_list(std::move(x)));
+  // }
 
-  template<class X>
-	requires(
-    std::ranges::range<X>
-  )
-  decltype(auto) chain_from_iterable(std::initializer_list<X>& x)
-  {
-    return ACCBOOST2::chain_from_iterable(ACCBOOST2::wrapp_initializer_list(x));
-  }
+  // template<class X>
+	// requires(
+  //   std::ranges::range<X>
+  // )
+  // decltype(auto) chain_from_iterable(std::initializer_list<X>& x)
+  // {
+  //   return ACCBOOST2::chain_from_iterable(ACCBOOST2::wrapp_initializer_list(x));
+  // }
 
-  template<class X>
-	requires(
-    std::ranges::range<X>
-  )
-  decltype(auto) chain_from_iterable(const std::initializer_list<X>& x)
-  {
-    return ACCBOOST2::chain_from_iterable(ACCBOOST2::wrapp_initializer_list(x));
-  }
+  // template<class X>
+	// requires(
+  //   std::ranges::range<X>
+  // )
+  // decltype(auto) chain_from_iterable(const std::initializer_list<X>& x)
+  // {
+  //   return ACCBOOST2::chain_from_iterable(ACCBOOST2::wrapp_initializer_list(x));
+  // }
 
 }
 

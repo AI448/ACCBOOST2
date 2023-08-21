@@ -14,7 +14,7 @@ namespace ACCBOOST2
   {
 
 
-    template<class FunctorType, class SentinelType>
+    template<class SentinelType>
     class FilterSentinel;
 
 
@@ -74,12 +74,12 @@ namespace ACCBOOST2
         return !operator==(rhs);
       }
 
-      bool operator==(const FilterSentinel<FunctorType, SentinelType>&) const noexcept
+      bool operator==(const FilterSentinel<SentinelType>&) const noexcept
       {
         return _iterator == _sentinel;
       }
 
-      bool operator!=(const FilterSentinel<FunctorType, SentinelType>&) const noexcept
+      bool operator!=(const FilterSentinel<SentinelType>&) const noexcept
       {
         return _iterator != _sentinel;
       }
@@ -113,25 +113,27 @@ namespace ACCBOOST2
 
     };
 
-    template<class FunctorType, class SentinelType>
+    template<class SentinelType>
     class FilterSentinel
     {
+      static_assert(std::semiregular<SentinelType>);
+
     public:
 
-      template<class I>
+      template<class F, class I>
       requires(
         std::sentinel_for<SentinelType, I>
       )
-      bool operator==(const FilterIterator<FunctorType, I, SentinelType>& rhs) const noexcept
+      bool operator==(const FilterIterator<F, I, SentinelType>& rhs) const noexcept
       {
         return rhs == *this;
       }
 
-      template<class I>
+      template<class F, class I>
       requires(
         std::sentinel_for<SentinelType, I>
       )
-      bool operator!=(const FilterIterator<FunctorType, I, SentinelType>& rhs) const noexcept
+      bool operator!=(const FilterIterator<F, I, SentinelType>& rhs) const noexcept
       {
         return rhs != *this;
       }
@@ -143,6 +145,7 @@ namespace ACCBOOST2
   template<class FunctorType, class IteratorType, class SentinelType>
   decltype(auto) make_filter_iterator(FunctorType&& functor, IteratorType&& iterator, SentinelType&& sentinel)
   {
+    static_assert(std::input_iterator<std::remove_cv_t<std::remove_reference_t<IteratorType>>>);
     return ACCBOOST2::_utility_iterator_make_filter_iterator::FilterIterator<
       FunctorType, std::remove_cv_t<std::remove_reference_t<IteratorType>>, std::remove_cv_t<std::remove_reference_t<SentinelType>>
     >(
@@ -150,14 +153,10 @@ namespace ACCBOOST2
     );
   }
 
-  template<class FunctorType, class SentinelType>
-  decltype(auto) make_filter_sentinel(FunctorType&&, SentinelType&&)
+  template<class SentinelType>
+  decltype(auto) make_filter_sentinel(SentinelType&&)
   {
-    using functor_t = ACCBOOST2::capture_of<FunctorType&&>;
-    using sentinel_t = std::remove_cv_t<std::remove_reference_t<SentinelType>>;
-    return ACCBOOST2::_utility_iterator_make_filter_iterator::FilterSentinel<
-      functor_t, sentinel_t
-    >();
+    return ACCBOOST2::_utility_iterator_make_filter_iterator::FilterSentinel<std::remove_cv_t<std::remove_reference_t<SentinelType>>>();
   }
 
 }
