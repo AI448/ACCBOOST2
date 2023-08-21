@@ -12,37 +12,30 @@ namespace ACCBOOST2
   namespace _utility_iterator_make_integer_iterator
   {
 
-    template<class Integer>
+    template<class IntegerType>
     class IntegerIterator
     {
       template<class>
       friend class IntegerIterator;
 
-      static_assert(!std::is_reference_v<Integer>);
-      static_assert(!std::is_const_v<Integer>);
-      static_assert(!std::is_volatile_v<Integer>);
+      static_assert(!std::is_reference_v<IntegerType>);
+      static_assert(!std::is_const_v<IntegerType>);
+      static_assert(!std::is_volatile_v<IntegerType>);
+      static_assert(std::integral<IntegerType>);
 
     public:
 
       using iterator_category = std::random_access_iterator_tag;
       using difference_type = std::ptrdiff_t;
-      using value_type = Integer;      
-      using reference = Integer;
-      using pointer = std::add_pointer_t<const Integer>;
+      using value_type = IntegerType;      
+      using reference = IntegerType;
+      using pointer = std::add_pointer_t<const IntegerType>;
 
     private:
 
-      [[no_unique_address]] Integer i_;
+      [[no_unique_address]] IntegerType _integer = 0;
 
     public:
-
-      explicit IntegerIterator(Integer&& i) noexcept(std::is_nothrow_move_constructible_v<Integer>):
-        i_(std::move(i))
-      {}
-
-      explicit IntegerIterator(const Integer& i) noexcept(std::is_nothrow_copy_constructible_v<Integer>):
-        i_(i)
-      {}
 
       IntegerIterator() = default;
       IntegerIterator(IntegerIterator&&) = default;
@@ -50,51 +43,59 @@ namespace ACCBOOST2
       IntegerIterator& operator=(IntegerIterator&&) = default;
       IntegerIterator& operator=(const IntegerIterator&) = default;
 
+      explicit IntegerIterator(IntegerType&& integer) noexcept(std::is_nothrow_move_constructible_v<IntegerType>):
+        _integer(std::move(integer))
+      {}
+
+      explicit IntegerIterator(const IntegerType& integer) noexcept(std::is_nothrow_copy_constructible_v<IntegerType>):
+        _integer(integer)
+      {}
+
       template<class I>
       bool operator==(const IntegerIterator<I>& other) const noexcept
       {
-        return i_ == other.i_;
+        return _integer == other._integer;
       }
 
       template<class I>
       bool operator!=(const IntegerIterator<I>& other) const noexcept
       {
-        return i_ != other.i_;
+        return _integer != other._integer;
       }
 
       template<class I>
       bool operator<(const IntegerIterator<I>& other) const noexcept
       {
-        return i_ < other.i_;
+        return _integer < other._integer;
       }
 
       template<class I>
       bool operator>(const IntegerIterator<I>& other) const noexcept
       {
-        return i_ > other.i_;
+        return _integer > other._integer;
       }
 
       template<class I>
       bool operator<=(const IntegerIterator<I>& other) const noexcept
       {
-        return i_ <= other.i_;
+        return _integer <= other._integer;
       }
 
       template<class I>
       bool operator>=(const IntegerIterator<I>& other) const noexcept
       {
-        return i_ >= other.i_;
+        return _integer >= other._integer;
       }
 
       template<class I>
       difference_type operator-(const IntegerIterator<I>& other) const noexcept
       {
-        return static_cast<difference_type>(i_) - static_cast<difference_type>(other.i_);
+        return static_cast<difference_type>(_integer) - static_cast<difference_type>(other._integer);
       }
 
       reference operator*() const noexcept
       {
-        return i_;
+        return _integer;
       }
 
       pointer operator->() const noexcept
@@ -104,51 +105,51 @@ namespace ACCBOOST2
 
       reference operator[](difference_type d) const noexcept
       {
-        return i_ + d;
+        return _integer + d;
       }
 
       IntegerIterator operator+(difference_type d) const noexcept
       {
-        return IntegerIterator(i_ + d);
+        return IntegerIterator(_integer + d);
       }
 
       IntegerIterator operator-(difference_type d) const noexcept
       {
-        return IntegerIterator(i_ - d);
+        return IntegerIterator(_integer - d);
       }
 
       IntegerIterator& operator++() noexcept
       {
-        ++i_;
+        ++_integer;
         return *this;
       }
 
       IntegerIterator& operator--() noexcept
       {
-        --i_;
+        --_integer;
         return *this;
+      }
+
+      IntegerIterator operator++(int) noexcept
+      {
+        return _integer++;
+      }
+
+      IntegerIterator operator--(int) noexcept
+      {
+        return _integer--;        
       }
 
       IntegerIterator& operator+=(difference_type d) noexcept
       {
-        i_ += d;
+        _integer += d;
         return *this;
       }
 
       IntegerIterator& operator-=(difference_type d) noexcept
       {
-        i_ -= d;
+        _integer -= d;
         return *this;
-      }
-
-      IntegerIterator& operator++(int) noexcept
-      {
-        return IntegerIterator(i_++);
-      }
-
-      IntegerIterator& operator--(int) noexcept
-      {
-        return IntegerIterator(i_--);        
       }
 
     };
@@ -156,10 +157,14 @@ namespace ACCBOOST2
   }
 
 
-  template<class Integer>
-  decltype(auto) make_integer_iterator(Integer&& integer) noexcept
+  template<class IntegerType>
+  decltype(auto) make_integer_iterator(IntegerType&& integer) noexcept
   {
-    return ACCBOOST2::_utility_iterator_make_integer_iterator::IntegerIterator<std::remove_const_t<std::remove_reference_t<Integer>>>(std::forward<Integer>(integer));
+    return ACCBOOST2::_utility_iterator_make_integer_iterator::IntegerIterator<
+      std::remove_const_t<std::remove_reference_t<IntegerType>>
+    >(
+      std::forward<IntegerType>(integer)
+    );
   }
 
 

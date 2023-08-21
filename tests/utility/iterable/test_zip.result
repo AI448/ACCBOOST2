@@ -1,0 +1,1 @@
+ACCBOOST2::_utility_iterable_zip::ZippedRange<false, std::vector<int, std::allocator<int> >&, std::vector<double, std::allocator<double> >&>&&	[(1,0.1),(2,0.2),(3,0.3)]

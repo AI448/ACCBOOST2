@@ -225,30 +225,18 @@ namespace ACCBOOST2
   public:
 
     template<class... T>
-      requires(
-        sizeof...(T) == N &&
-        (... && std::is_same_v<std::remove_cv_t<std::remove_reference_t<ReferenceType>>, std::remove_cv_t<std::remove_reference_t<T>>>) &&
-        (... && std::is_convertible_v<ReferenceType, T&&>))
-    StaticReferenceArray(T&&... args) noexcept:
-      _data{std::addressof(std::forward<T>(args))...}
+    requires(
+      sizeof...(T) == N &&
+      (... && std::is_lvalue_reference_v<T&>) &&
+      (... && std::is_convertible_v<std::add_pointer_t<std::remove_reference_t<T&>>, std::add_pointer_t<std::remove_reference_t<ReferenceType>>>)
+    )
+    StaticReferenceArray(T&... args) noexcept:
+      _data{std::addressof(args)...}
     {}
 
     StaticReferenceArray(StaticReferenceArray&&) noexcept = default;
     StaticReferenceArray(const StaticReferenceArray&) noexcept = default;
 
-/* ???
-    StaticReferenceArray(StaticReferenceArray& other) noexcept(std::is_nothrow_copy_constructible_v<StaticReferenceArray>):
-      StaticReferenceArray(std::as_const(other))
-    {}
-*/
-/*
-    operator std::array<std::remove_cv_t<std::remove_reference_t<ReferenceType>>, N>() const
-    {
-      return ACCBOOST::apply([](auto&... args){
-        return std::array<std::remove_cv_t<std::remove_reference_t<ReferenceType>>, N>{std::forward<decltype(args)>(args)...};
-      }, *this);
-    }
-*/
     std::size_t size() const noexcept
     {
       return N;
@@ -304,7 +292,7 @@ namespace ACCBOOST2
     {
       return nullptr;
     }
-    
+
   };
 
 }

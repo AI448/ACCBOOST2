@@ -2,8 +2,8 @@
 #define ACCBOOST2_UTILITY_ITERABLE_SEARCH_HPP_
 
 
-#include "is_range.hpp"
 #include "map.hpp"
+#include "wrapp_initializer_list.hpp"
 
 
 namespace ACCBOOST2
@@ -11,7 +11,7 @@ namespace ACCBOOST2
 
   template<class X, class R>
   requires(
-    ACCBOOST2::is_range<R>
+    std::ranges::range<R>
   )
   bool in(X&& x, R&& r)
   {
@@ -32,7 +32,7 @@ namespace ACCBOOST2
 
   template<class F, class R>
   requires(
-    ACCBOOST2::is_range<R>
+    std::ranges::range<R>
   )
   bool all(F&& f, R&& r)
   {
@@ -47,7 +47,7 @@ namespace ACCBOOST2
 
   template<class F, class R>
   requires(
-    ACCBOOST2::is_range<R>
+    std::ranges::range<R>
   )
   bool any(F&& f, R&& r)
   {

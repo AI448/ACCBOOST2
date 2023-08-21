@@ -6,7 +6,6 @@
 #include "../iterator.hpp"
 #include "zip.hpp"
 #include "wrapp_initializer_list.hpp"
-#include "is_range.hpp"
 
 
 namespace ACCBOOST2
@@ -15,18 +14,18 @@ namespace ACCBOOST2
   namespace _utility_iterable_map
   {
 
-    template<class FunctorT, class RangeT>
+    template<class FunctorType, class RangeType>
     class MappedRange
     {
-      static_assert(!std::is_rvalue_reference_v<FunctorT>);
-      static_assert(!std::is_const_v<FunctorT>);
-      static_assert(!std::is_rvalue_reference_v<RangeT>);
-      static_assert(!std::is_const_v<RangeT>);
+      static_assert(!std::is_rvalue_reference_v<FunctorType>);
+      static_assert(!std::is_const_v<FunctorType>);
+      static_assert(!std::is_rvalue_reference_v<RangeType>);
+      static_assert(!std::is_const_v<RangeType>);
 
     private:
 
-      [[no_unique_address]] FunctorT functor_;
-      [[no_unique_address]] RangeT range_;
+      [[no_unique_address]] FunctorType functor_;
+      [[no_unique_address]] RangeType range_;
 
     public:
 
@@ -72,7 +71,7 @@ namespace ACCBOOST2
 
   template<class F, class X>
   requires(
-    ACCBOOST2::is_range<X> &&
+    std::ranges::range<X> &&
     !ACCBOOST2::is_array<std::remove_reference_t<X>>
   )
   decltype(auto) map(F&& f, X&& x)
@@ -84,7 +83,7 @@ namespace ACCBOOST2
   template<class F, class... X>
   requires(
     sizeof...(X) >= 2 &&
-    (... && ACCBOOST2::is_range<X>) &&
+    (... && std::ranges::range<X>) &&
     !(... && ACCBOOST2::is_array<std::remove_reference_t<X>>)
   )
   decltype(auto) map(F&& f, X&&... x)

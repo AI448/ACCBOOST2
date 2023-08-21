@@ -5,7 +5,7 @@
 #include "../misc.hpp"
 #include "../array.hpp"
 #include "chain_from_iterable.hpp"
-#include "is_range.hpp"
+#include "wrapp_initializer_list.hpp"
 
 
 namespace ACCBOOST2
@@ -13,7 +13,7 @@ namespace ACCBOOST2
 
   template<class X, class... Y>
 	  requires(
-      ACCBOOST2::is_range<X> &&
+      std::ranges::range<X> &&
 	    !ACCBOOST2::is_array<std::remove_reference_t<X>> &&
       (... && std::is_same_v<X, Y>))
   decltype(auto) chain(X&& x, Y&&... y)

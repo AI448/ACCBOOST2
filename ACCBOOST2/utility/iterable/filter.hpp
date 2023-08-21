@@ -2,7 +2,10 @@
 #define ACCBOOST2_UTILITY_ITERABLE_FILTER_HPP_
 
 
-#include "is_range.hpp"
+#include "../misc.hpp"
+#include "../iterator.hpp"
+#include "zip.hpp"
+#include "wrapp_initializer_list.hpp"
 
 
 namespace ACCBOOST2
@@ -11,18 +14,18 @@ namespace ACCBOOST2
   namespace _utility_iterable_filter
   {
 
-    template<class FunctorT, class RangeT>
+    template<class FunctorType, class RangeType>
     class FilteredRange
     {
-      static_assert(!std::is_rvalue_reference_v<FunctorT>);
-      static_assert(!std::is_const_v<FunctorT>);
-      static_assert(!std::is_rvalue_reference_v<RangeT>);
-      static_assert(!std::is_const_v<RangeT>);
+      static_assert(!std::is_rvalue_reference_v<FunctorType>);
+      static_assert(!std::is_const_v<FunctorType>);
+      static_assert(!std::is_rvalue_reference_v<RangeType>);
+      static_assert(!std::is_const_v<RangeType>);
 
     private:
 
-      [[no_unique_address]] FunctorT functor_;
-      [[no_unique_address]] RangeT range_;
+      [[no_unique_address]] FunctorType functor_;
+      [[no_unique_address]] RangeType range_;
 
     public:
 
@@ -48,7 +51,7 @@ namespace ACCBOOST2
       {
         using std::begin;
         using std::end;
-        return ACCBOOST2::make_last_filter_iterator(functor_, begin(range_), end(range_));
+        return ACCBOOST2::make_filter_sentinel(functor_, end(range_));
       }
 
       decltype(auto) begin()
@@ -62,7 +65,7 @@ namespace ACCBOOST2
       {
         using std::begin;
         using std::end;
-        return ACCBOOST2::make_last_filter_iterator(functor_, begin(range_), end(range_));
+        return ACCBOOST2::make_filter_sentinel(functor_, end(range_));
       }
 
     };
@@ -72,7 +75,7 @@ namespace ACCBOOST2
 
   template<class F, class X>
   requires(
-    ACCBOOST2::is_range<X>
+    std::ranges::range<X>
   )
   decltype(auto) filter(F&& f, X&& x)
   {
@@ -82,7 +85,7 @@ namespace ACCBOOST2
 
   template<class F, class... X>
   requires(
-    (... && ACCBOOST2::is_range<X>)
+    (... && std::ranges::range<X>)
   )
   decltype(auto) filter(F&& f, X&&... x)
   {

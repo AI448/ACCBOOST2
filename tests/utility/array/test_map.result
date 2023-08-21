@@ -1,0 +1,5 @@
+std::array<int, 2ul>&&	[2,4]
+std::array<int, 2ul>&&	[4,6]
+std::array<int, 2ul>&&	[3,5]
+ACCBOOST2::StaticReferenceArray<int&, 2ul>&&	[1,2]
+std::array<int, 2ul>&&	[1,2]

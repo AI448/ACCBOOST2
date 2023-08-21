@@ -4,8 +4,8 @@
 
 #include "../misc.hpp"
 #include "../iterator.hpp"
-#include "is_range.hpp"
 #include "zip.hpp"
+#include "wrapp_initializer_list.hpp"
 
 
 namespace ACCBOOST2
@@ -16,19 +16,19 @@ namespace _utility_iterable_slice
 {
 
 
-template<std::integral FirstT, std::integral LastT, class RangeT>
+template<std::integral FirstT, std::integral LastT, class RangeType>
 class SlicedRange
 {
 private:
 
   FirstT _first;
   LastT _last;
-  RangeT _range;
+  RangeType _range;
 
 public:
 
-  SlicedRange(const FirstT& first, const LastT& last, RangeT&& range):
-    _first(first), _last(last), _range(std::forward<RangeT>(range))
+  SlicedRange(const FirstT& first, const LastT& last, RangeType&& range):
+    _first(first), _last(last), _range(std::forward<RangeType>(range))
   {}
 
   decltype(auto) begin() const noexcept
@@ -47,10 +47,10 @@ public:
 }
 
 
-template<std::integral FirstT, std::integral LastT, class RangeT>
-decltype(auto) slice(const FirstT& first, const LastT& last, RangeT&& range)
+template<std::integral FirstT, std::integral LastT, class RangeType>
+decltype(auto) slice(const FirstT& first, const LastT& last, RangeType&& range)
 {
-  return _utility_iterable_slice::SlicedRange<FirstT, LastT, RangeT>(first, last, std::forward<RangeT>(range));
+  return _utility_iterable_slice::SlicedRange<FirstT, LastT, RangeType>(first, last, std::forward<RangeType>(range));
 }
 
 

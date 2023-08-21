@@ -49,7 +49,7 @@ namespace ACCBOOST2
 
     template<class RangeType>
     requires(
-      is_range<RangeType>
+      std::ranges::range<RangeType>
     )
     ZippedArray(const RangeType& other):
       ZippedArray()
@@ -84,7 +84,7 @@ namespace ACCBOOST2
 
     template<class RangeType>
     requires(
-      is_range<RangeType>
+      std::ranges::range<RangeType>
     )
     ZippedArray& operator=(const RangeType& range)
     {
@@ -217,8 +217,8 @@ namespace ACCBOOST2
     template<class RangeType>
     void expand(const RangeType& x)
     {
-      static_assert(is_range<RangeType>);
-      if constexpr (is_random_access_range<RangeType>){
+      static_assert(std::ranges::range<RangeType>);
+      if constexpr (std::ranges::random_access_range<RangeType>){
         reserve(capacity() + (x.end() - x.begin()));
         for(auto&& y: x){
           ACCBOOST2::apply(
