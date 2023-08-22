@@ -81,7 +81,7 @@ namespace ACCBOOST2
 
       template<class... S>
       requires(
-        std::sentinel_for<ZipSentinel<ComparatorType, S...>, ZipIterator>
+        ACCBOOST2::weakly_equality_comparable_with<const std::tuple<IteratorTypes...>&, const std::tuple<S...>&>
       )
       bool operator==(const ZipSentinel<ComparatorType, S...>& other) const noexcept
       {
@@ -90,7 +90,7 @@ namespace ACCBOOST2
 
       template<class... S>
       requires(
-        std::sentinel_for<ZipSentinel<ComparatorType, S...>, ZipIterator>
+        ACCBOOST2::weakly_equality_comparable_with<const std::tuple<IteratorTypes...>&, const std::tuple<S...>&>
       )
       bool operator!=(const ZipSentinel<ComparatorType, S...>& other) const noexcept
       {
@@ -122,7 +122,7 @@ namespace ACCBOOST2
       static_assert(sizeof...(SentinelTypes) > 0);
       static_assert((... && std::semiregular<SentinelTypes>));
 
-      template<class, class>
+      template<class, class...>
       friend class ZipIterator;
 
     private:

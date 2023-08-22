@@ -98,61 +98,62 @@ namespace ACCBOOST2
         }, ranges_);
       }
 
-      // decltype(auto) begin()
-      // {
-      //   using std::begin;
-      //   return ACCBOOST2::apply([](auto&... r) ->decltype(auto)
-      //   {
-      //     if constexpr ((... && std::ranges::random_access_range<std::remove_reference_t<RangesT>>)){
-      //       // 全てのイテレータがランダムアクセス可能な場合
-      //       if constexpr (WithEnumeration){
-      //         // enumerate の場合
-      //         return ACCBOOST2::make_random_access_enumerate_iterator(0, begin(r)...);
-      //       }else{
-      //         // zip の場合
-      //         return ACCBOOST2::make_random_access_zip_iterator(0, begin(r)...);
-      //       }
-      //     }else{
-      //       // ランダムアクセス不可能なイテレータが存在する場合
-      //       if constexpr (WithEnumeration){
-      //         // enumerate の場合
-      //         return ACCBOOST2::make_enumerated_iterator(0, begin(r)...);
-      //       }else{
-      //         // zip の場合
-      //         return ACCBOOST2::make_zip_iterator(begin(r)...);
-      //       }
-      //     }
-      //   }, ranges_);
-      // }
+      decltype(auto) begin()
+      {
+        using std::begin;
+        return ACCBOOST2::apply([](auto&... r) ->decltype(auto)
+        {
+          if constexpr ((... && std::ranges::random_access_range<RangesT>)){
+            // 全てのイテレータがランダムアクセス可能な場合
+            if constexpr (WithEnumeration){
+              // enumerate の場合
+              return ACCBOOST2::make_random_access_enumerate_iterator(0, begin(r)...);
+            }else{
+              // zip の場合
+              return ACCBOOST2::make_random_access_zip_iterator(0, begin(r)...);
+            }
+          }else{
+            // ランダムアクセス不可能なイテレータが存在する場合
+            if constexpr (WithEnumeration){
+              // enumerate の場合
+              return ACCBOOST2::make_enumerated_iterator(static_cast<std::ptrdiff_t>(0), begin(r)...);
+            }else{
+              // zip の場合
+              return ACCBOOST2::make_zip_iterator(begin(r)...);
+            }
+          }
+        }, ranges_);
+      }
 
-      // decltype(auto) end()
-      // {
-      //   using std::begin;
-      //   using std::end;        
-      //   return ACCBOOST2::apply([](auto&... r) ->decltype(auto)
-      //   {
-      //     if constexpr ((... && std::ranges::random_access_range<std::remove_reference_t<RangesT>>)){
-      //       // 全てのイテレータがランダムアクセス可能な場合
-      //       std::ptrdiff_t min_distance = std::min<std::ptrdiff_t>({end(r) - begin(r)...});
-      //       if constexpr (WithEnumeration){
-      //         // enumerate の場合
-      //         return ACCBOOST2::make_random_access_enumerate_iterator(min_distance, begin(r) + min_distance...);
-      //       }else{
-      //         // zip の場合
-      //         return ACCBOOST2::make_random_access_zip_iterator(min_distance, begin(r) + min_distance...);
-      //       }
-      //     }else{
-      //       // ランダムアクセス不可能なイテレータが存在する場合
-      //       if constexpr (WithEnumeration){
-      //         // enumerate の場合
-      //         return ACCBOOST2::make_enumerated_iterator(std::numeric_limits<std::ptrdiff_t>::max(), end(r)...);
-      //       }else{
-      //         // zip の場合
-      //         return ACCBOOST2::make_zip_iterator(end(r)...);
-      //       }
-      //     }
-      //   }, ranges_);
-      // }
+      decltype(auto) end()
+      {
+        using std::begin;
+        using std::end;
+        return ACCBOOST2::apply([](auto&... r) ->decltype(auto)
+        {
+          if constexpr ((... && std::ranges::random_access_range<std::remove_reference_t<RangesT>>)){
+            // 全てのイテレータがランダムアクセス可能な場合
+            std::ptrdiff_t min_distance = std::min<std::ptrdiff_t>({end(r) - begin(r)...});
+            if constexpr (WithEnumeration){
+              // enumerate の場合
+              return ACCBOOST2::make_random_access_enumerate_iterator(min_distance, begin(r) + min_distance...);
+            }else{
+              // zip の場合
+              return ACCBOOST2::make_random_access_zip_iterator(min_distance, begin(r) + min_distance...);
+            }
+          }else{
+            // ランダムアクセス不可能なイテレータが存在する場合
+            if constexpr (WithEnumeration){
+              // enumerate の場合
+              return ACCBOOST2::make_enumerated_iterator_or_sentinel(std::numeric_limits<std::ptrdiff_t>::max(), end(r)...);
+            }else{
+              // zip の場合
+              return ACCBOOST2::make_zip_iterator_or_sentinel(end(r)...);
+            }
+          }
+        }, ranges_);
+      }
+
     };
 
   }

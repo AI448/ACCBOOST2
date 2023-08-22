@@ -113,16 +113,25 @@ private:
 
     using difference_type = std::ptrdiff_t;
     using iterator_category = std::bidirectional_iterator_tag;
+    using reference = T*;
+    using value_type = T*;
+    using pointer = T**;
 
   private:
 
-    T* _item;
+    T* _item = nullptr;
 
     explicit Iterator(T* item) noexcept:
       _item(item)
     {}
 
   public:
+
+    Iterator() = default;
+    Iterator(Iterator&&) = default;
+    Iterator(const Iterator&) = default;
+    Iterator& operator=(Iterator&&) = default;
+    Iterator& operator=(const Iterator&) = default;
 
     template<class U>
     bool operator==(const Iterator<U>& rhs) const noexcept
@@ -147,10 +156,24 @@ private:
       return *this;
     }
 
+    Iterator operator++(int) noexcept
+    {
+      Iterator tmp(*this);
+      operator++();
+      return tmp;
+    }
+
     Iterator& operator--() noexcept
     {
       _item = _item->_previous_item;
       return *this;
+    }
+
+    Iterator operator--(int) noexcept
+    {
+      Iterator tmp(*this);
+      operator--();
+      return tmp;
     }
 
   };

@@ -64,13 +64,13 @@ private:
       }
     }
 
-    class LastIterator {};
+    class Sentinel;
 
     class Iterator
     {
     public:
 
-      using iterator_category = std::forward_iterator_tag;
+      using iterator_category = std::input_iterator_tag;
       using difference_type = std::ptrdiff_t;
       using value_type = std::basic_string<char_type>;
       using reference = const std::basic_string<char_type>&;
@@ -78,33 +78,62 @@ private:
 
     private:
 
-      Splitter& _splitter;
+      Splitter* _splitter = nullptr;
 
     public:
 
+      Iterator() = default;
+      Iterator(Iterator&&) = default;
+      Iterator(const Iterator&) = default;
+      Iterator& operator=(Iterator&&) = default;
+      Iterator& operator=(const Iterator&) = default;
+
       explicit Iterator(Splitter& splitter) noexcept:
-        _splitter(splitter)
+        _splitter(std::addressof(splitter))
       {}
 
-      bool operator==(const LastIterator&) const noexcept
+      bool operator==(const Sentinel&) const noexcept
       {
-        return _splitter.eof();
+        return _splitter->eof();
       }
 
-      bool operator!=(const LastIterator&) const noexcept
+      bool operator!=(const Sentinel&) const noexcept
       {
-        return !_splitter.eof();
+        return !_splitter->eof();
       }
 
       const std::basic_string<char_type>& operator*() const noexcept
       {
-        return _splitter.get();
+        return _splitter->get();
       }
 
       Iterator& operator++()
       {
-        _splitter.next();
+        _splitter->next();
         return *this;
+      }
+
+      Iterator operator++(int)
+      {
+        Iterator tmp(*this);
+        _splitter->next();
+        return tmp;
+      }
+
+    };
+
+    class Sentinel
+    {
+    public:
+
+      bool operator==(const Iterator& rhs) const noexcept
+      {
+        return rhs == *this;
+      }
+
+      bool operator!=(const Iterator& rhs) const noexcept
+      {
+        return rhs != *this;
       }
 
     };
@@ -118,7 +147,7 @@ private:
 
     decltype(auto) end() noexcept
     {
-      return LastIterator();
+      return Sentinel();
     }
 
   // deleted:
