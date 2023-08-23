@@ -24,7 +24,7 @@ namespace ACCBOOST2
       static_assert(!std::is_rvalue_reference_v<FunctorType>);
       static_assert(!std::is_reference_v<IteratorType>);
       static_assert(!std::is_const_v<IteratorType>);
-      static_assert(std::forward_iterator<IteratorType>);
+      static_assert(std::input_iterator<IteratorType>);
       static_assert(!std::is_reference_v<SentinelType>);
       
       static_assert(std::invocable<const FunctorType&, std::iter_reference_t<IteratorType>>);
