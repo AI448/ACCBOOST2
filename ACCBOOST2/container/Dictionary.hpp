@@ -15,28 +15,63 @@ namespace ACCBOOST2
 struct HashFunction
 {
 
-  template<class IntegerType>
-  requires(std::is_integral_v<IntegerType> || std::is_enum_v<IntegerType>)
-  std::uint64_t operator()(const IntegerType& i) const noexcept
+  template<class X>
+  requires(
+    std::is_integral_v<X> || std::is_enum_v<X>
+  )
+  std::uint64_t operator()(const X& x) const noexcept
   {
-    return static_cast<std::uint64_t>(i);
+    // 整数型または enum 型
+    return static_cast<std::uint64_t>(x);
   }
 
-  template<class CharType>
-  std::uint64_t operator()(const std::basic_string<CharType>& str) const noexcept
+  template<class X, class Y>
+  requires(
+    (std::is_integral_v<std::remove_reference_t<X>> || std::is_enum_v<std::remove_reference_t<X>>) &&
+    (std::is_integral_v<std::remove_reference_t<Y>> || std::is_enum_v<std::remove_reference_t<Y>>)
+  )
+  std::uint64_t operator()(const std::tuple<X, Y>& index) const noexcept
   {
-    return std::hash<std::basic_string<CharType>>()(str);
+    // 2 つの整数の組
+    std::uint64_t h = (
+      (static_cast<std::uint64_t>(ACCBOOST2::get<0>(index)) << 32)
+      + (static_cast<std::uint64_t>(ACCBOOST2::get<0>(index)) >> 32)
+      + static_cast<std::uint64_t>(ACCBOOST2::get<1>(index))
+    );
+    h ^= h >> 23;
+    h *= 0x2127599bf4325c37ULL;
+    h ^= h >> 47;
+    return h;
+  }
+
+  template<class X>
+  requires(
+    std::is_integral_v<X> || std::is_enum_v<X>
+  )
+  std::uint64_t operator()(const std::array<X, 2>& index) const noexcept
+  {
+    // 2 つの整数の組
+    return operator()(std::forward_as_tuple(index[0], index[1]));
   }
 
   template<class CharType>
   std::uint64_t operator()(std::basic_string_view<CharType> str) const noexcept
   {
+    // 文字列では標準関数の std::hash を使用
     return std::hash<std::basic_string_view<CharType>>()(str);
+  }
+
+  template<class CharType>
+  std::uint64_t operator()(const std::basic_string<CharType>& str) const noexcept
+  {
+    // 文字列
+    return operator()(std::basic_string_view<CharType>(str));
   }
 
   template<class... Types>
   std::uint64_t operator()(const std::tuple<Types...>& tuple) const noexcept
   {
+    // 一般のタプル
     if constexpr (sizeof...(Types) == 0){
       return 0;
     }else{

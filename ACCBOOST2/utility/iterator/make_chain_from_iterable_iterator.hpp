@@ -70,6 +70,13 @@ namespace ACCBOOST2
 
     private:
 
+      /*
+       * TODO optional を使用することも考えられる．
+       * その場合 optional のムーブ時に Sub._iterator をムーブできず， Sub._range.begin() で作り直す必要があるため，
+       * Sub._iterator が更新されている場合には正しくムーブできない．
+       * 更新フラグをメンバに用意し， assert でチェックするなどが考えられる．
+      */
+
       [[no_unique_address]] IteratorType _iterator;
       [[no_unique_address]] SentinelType _sentinel;
       [[no_unique_address]] Sub* _sub = nullptr;
@@ -130,22 +137,6 @@ namespace ACCBOOST2
       }
 
       Iterator& operator=(const Iterator&) = delete;
-
-      // bool operator==(const Iterator& rhs) const noexcept
-      // {
-      //   return (
-      //     _iterator == rhs._iterator &&
-      //     (
-      //       (!_sub.has_value() && !rhs._sub.has_value()) ||
-      //       (_sub.has_value() && rhs._sub.has_value() && _sub->_iterator == rhs._sub->_iterator)
-      //     )
-      //   );
-      // }
-
-      // bool operator!=(const Iterator& rhs) const noexcept
-      // {
-      //   return !operator==(rhs);
-      // }
 
       bool operator==(const Sentinel<SentinelType>&) const noexcept
       {

@@ -10,6 +10,8 @@
 namespace ACCBOOST2
 {
 
+  // TODO movable なファンクタを作るためのユーティリティなので，ファンクタがもともと movable であれば何もしなくていい．
+  // std::optional を使うことによるオーバヘッドも気になるので std::conditional_t で切り替えるようにする
 
   template<class FunctorType>
   class FunctorCapture

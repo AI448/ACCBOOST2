@@ -60,12 +60,12 @@ namespace ACCBOOST2
 
       decltype(auto) begin() const
       {
-        return first_;
+        return (first_);
       }
 
       decltype(auto) end() const
       {
-        return last_;
+        return (last_);
       }
 
       template<class X = FirstIterator>
