@@ -2,10 +2,9 @@
 #define ACCBOOST2_IO_OUTPUTSTREAM_HPP_
 
 
-#include <charconv>
 #include <string_view>
 #include "BINARY_TOOLS/Writer.hpp"
-#include "convert.hpp"
+#include "serialize.hpp"
 
 
 namespace ACCBOOST2::IO
@@ -70,20 +69,6 @@ namespace ACCBOOST2::IO
       }
     }
 
-    template<class ValueType>
-    requires(
-      !std::is_same_v<ValueType, char_type> &&
-      std::is_arithmetic_v<ValueType>
-    )
-    void operator()(const ValueType& value)
-    {
-      char buffer[64];
-      auto result = std::to_chars(buffer, buffer + 64, value);
-      for(char* p = buffer; p != result.ptr; ++p){
-        operator()(static_cast<char_type>(*p));
-      }
-    }
-
     void operator()(std::basic_string_view<char_type> str)
     {
       for(auto&& c: str){
@@ -93,7 +78,19 @@ namespace ACCBOOST2::IO
 
     void operator()(std::basic_string_view<char> str)
     {
-      operator()(convert<char_type>(str));
+      for(auto&& c: str){
+        assert(c < 0x80);
+        operator()(static_cast<char_type>(c));
+      }
+    }
+
+    template<class ValueType>
+    requires(
+      requires(const ValueType& value){{serialize<char_type>(value)} -> std::ranges::range;}
+    )
+    void operator()(const ValueType& value)
+    {
+      operator()(serialize<char_type>(value));
     }
 
     template<class FirstValueType, class... OtherValueTypes>

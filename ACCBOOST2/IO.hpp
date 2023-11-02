@@ -35,6 +35,12 @@ namespace ACCBOOST2::IO
     return OutputStream<CharType>(BINARY_TOOLS::make_encoder<CharType>(BINARY_TOOLS::make_binary_stdout_writer(), encoding));
   }
 
+  template<class CharType>
+  OutputStream<CharType> make_stderr_stream(const std::string& encoding = "ascii")
+  {
+    return OutputStream<CharType>(BINARY_TOOLS::make_encoder<CharType>(BINARY_TOOLS::make_binary_stderr_writer(), encoding));
+  }
+
   template<class InputStreamType, class CharType>
   decltype(auto) split(InputStreamType&& input_stream, const CharType& delimiter)
   {

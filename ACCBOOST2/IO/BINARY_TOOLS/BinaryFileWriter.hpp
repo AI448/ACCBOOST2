@@ -74,6 +74,11 @@ namespace ACCBOOST2::IO::BINARY_TOOLS
     return std::make_unique<BinaryFDWriter>(1);
   }
 
+  static inline std::unique_ptr<BinaryWriter> make_binary_stderr_writer()
+  {
+    return std::make_unique<BinaryFDWriter>(2);
+  }
+
 }
 
 #endif

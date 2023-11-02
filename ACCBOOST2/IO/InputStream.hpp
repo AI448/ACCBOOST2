@@ -169,6 +169,16 @@ namespace ACCBOOST2::IO
       return {};
     }
 
+    std::basic_string<CharT> read()
+    {
+      std::basic_string<CharT> string;
+      while(!eof()){
+        string.push_back(get());
+        next();
+      }
+      return string;
+    }
+
   // deleted:
 
     InputStream() = delete;
