@@ -188,6 +188,18 @@ namespace ACCBOOST2
 
     };
 
+    template<class LHSType, class FunctorType, class IteratorType>
+    requires(
+      std::convertible_to<const LHSType&, typename MapIterator<FunctorType, IteratorType>::difference_type> &&
+      requires(const LHSType& n, const MapIterator<FunctorType, IteratorType>& iterator)
+      {
+        iterator + n;
+      }
+    )
+    MapIterator<FunctorType, IteratorType> operator+(const LHSType& n, const MapIterator<FunctorType, IteratorType>& iterator) noexcept
+    {
+      return iterator + n;
+    }
 
     template<class SentinelType>
     class MapSentinel
@@ -253,7 +265,7 @@ namespace ACCBOOST2
   decltype(auto) make_map_iterator_or_sentinel(FunctorType&& functor, IteratorType&& iterator)
   {
     using iterator_type = std::remove_cv_t<std::remove_reference_t<IteratorType>>;
-    if constexpr (std::copyable<FunctorType> && std::forward_iterator<iterator_type>){
+    if constexpr (/*std::copyable<FunctorType> &&*/ std::forward_iterator<std::remove_reference_t<iterator_type>>){
       return make_map_iterator(std::forward<FunctorType>(functor), std::forward<IteratorType>(iterator));
     }else{
       return _utility_iterator_make_map_iterator::MapSentinel<iterator_type>(std::forward<IteratorType>(iterator));

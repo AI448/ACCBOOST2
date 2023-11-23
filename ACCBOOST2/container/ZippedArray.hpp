@@ -219,7 +219,7 @@ namespace ACCBOOST2
     {
       static_assert(std::ranges::range<RangeType>);
       if constexpr (std::ranges::random_access_range<RangeType>){
-        reserve(capacity() + (x.end() - x.begin()));
+        reserve(size() + (x.end() - x.begin()));
         for(auto&& y: x){
           ACCBOOST2::apply(
             [&](auto&&... z){push_back_without_allocation(std::forward<decltype(z)>(z)...);},

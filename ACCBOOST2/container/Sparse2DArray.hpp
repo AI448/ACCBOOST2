@@ -140,7 +140,7 @@ public:
 private:
 
   template<DirectionType Direction>
-  void _resize(const std::size_t& size)
+  ACCBOOST2_NOINLINE void _resize(const std::size_t& size)
   {
     if(_list_headers[Direction].size() < size){
       do{
@@ -149,7 +149,7 @@ private:
     }else if(_list_headers[Direction].size() > size){
       do{
         assert(_list_headers[Direction][_list_headers[Direction].size() - 1].size() == 0); // TODO 後でちゃんとする
-        _list_headers[Direction].push_back();
+        _list_headers[Direction].pop_back();
       }while(_list_headers[Direction].size() > size);
     }
   }
@@ -166,8 +166,10 @@ public:
     _resize<COLUMN>(column_size);
   }
 
+private:
+
   template<DirectionType D>
-  void clear(const std::size_t index) noexcept
+  void _clear(const std::size_t index) noexcept
   {
     assert(index < _list_headers[D].size());
     auto& list = _list_headers[D][index];
@@ -180,7 +182,7 @@ public:
       // 別方向のリストから削除
       auto&& another_index = ACCBOOST2::get<1 - D>(item->indices());
       auto& another_list = _list_headers[1 - D][another_index];
-      another_list.erase(static_cast<ACCBOOST2::tuple_element_t<1 - D, ListItems>**>(item));
+      another_list.erase(static_cast<ACCBOOST2::tuple_element_t<1 - D, ListItems>*>(item));
       // ハッシュテーブルから削除
       _hash_table.erase(item);
       // メモリプールに返す
@@ -188,7 +190,19 @@ public:
     }
   }
 
-  void clear() noexcept
+public:
+
+  void clear_row(const std::size_t index) noexcept
+  {
+    _clear<ROW>(index);
+  }
+
+  void clear_column(const std::size_t index) noexcept
+  {
+    _clear<COLUMN>(index);
+  }
+
+  ACCBOOST2_NOINLINE void clear() noexcept
   {
     for(std::size_t row_index: ACCBOOST2::reverse(ACCBOOST2::range(_list_headers[ROW].size()))){
       auto& row_list = _list_headers[ROW][row_index];
@@ -205,7 +219,7 @@ public:
     }
   }
 
-  void release() noexcept
+  ACCBOOST2_NOINLINE void release() noexcept
   {
     clear();
     _list_headers[ROW].clear();

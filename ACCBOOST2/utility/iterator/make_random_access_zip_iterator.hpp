@@ -34,6 +34,7 @@ namespace ACCBOOST2
         std::tuple<typename std::iterator_traits<IteratorTypes>::reference...>
       >;
 
+      // NOTE: 値のタプルにはできない．標準ライブラリの仕様で reference と value_type を共通の参照型に変換できることが要求されるため．
       using value_type = std::remove_const_t<std::remove_reference_t<reference>>;
 
       using pointer = std::add_pointer_t<const value_type*>;
@@ -186,7 +187,13 @@ namespace ACCBOOST2
         }, _iterators);
       }
 
-     };
+    };
+
+    template<std::integral IntegerType, bool Indexing, class... IteratorTypes>
+    Impl<Indexing, IteratorTypes...> operator+(const IntegerType& n, const Impl<Indexing, IteratorTypes...>& iterator) noexcept
+    {
+      return iterator + n;
+    }
 
     template<class... IteratorTypes>
     using RandomAccessZipIterator = _utility_iterator_make_random_access_zip_iterator::Impl<false, IteratorTypes...>;

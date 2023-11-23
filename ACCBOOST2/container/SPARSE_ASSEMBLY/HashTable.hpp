@@ -156,7 +156,7 @@ public:
 private:
 
   template<class K>
-  ACCBOOST2_INLINE std::size_t _search(const std::size_t& hash_value, const K& key) const noexcept
+  std::size_t _search(const std::size_t& hash_value, const K& key) const noexcept
   {
     assert(_table.size() > _number_of_used + _number_of_dirty);
     std::size_t position_mask = _table.size() - 1U;
@@ -167,8 +167,10 @@ private:
       current_position &= position_mask;
       const Slot& slot = _table[current_position];
       if(slot.is_used()){
-        if(slot.hash_value() == hash_value && slot.key() == key){
-          return current_position;
+        if(slot.hash_value() == hash_value){
+          if(slot.key() == key) [[likely]] {
+            return current_position;
+          }
         }
       }else if(slot.is_dirty()){
         if(first_dirty_position == _null_position){
@@ -265,7 +267,7 @@ public:
   ACCBOOST2_INLINE void add(HashTableItem* item)
   {
     assert(item != nullptr);
-    if(_number_of_used + _number_of_dirty >= _table.size() / 2){
+    if(_number_of_used + _number_of_dirty >= _table.size() / 2) [[unlikely]] {
       _reserve(std::max(_number_of_used * 4, _min_table_size));
     }
     std::size_t hash_value = _hash(_get_key(*item));

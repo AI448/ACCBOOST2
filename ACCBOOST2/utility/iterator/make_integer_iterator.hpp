@@ -154,7 +154,14 @@ namespace ACCBOOST2
 
     };
 
+    template<class IntegerType>
+    IntegerIterator<IntegerType> operator+(typename IntegerIterator<IntegerType>::difference_type d, const IntegerIterator<IntegerType>& iterator) noexcept
+    {
+      return iterator + d;
+    }
+
   }
+
 
 
   template<class IntegerType>
