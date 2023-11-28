@@ -222,6 +222,16 @@ public:
 
 private:
 
+  struct ItemToKey
+  {
+    const KeyType& operator()(const List::Item* list_item) const noexcept
+    {
+      assert(list_item != nullptr);
+      const Item* item = static_cast<const Item*>(list_item);
+      return item->key();
+    }
+  };
+
   struct ItemToKeyValue
   {
     std::tuple<const KeyType&, ValueType&> operator()(List::Item* list_item) const noexcept
@@ -243,6 +253,11 @@ private:
   };
 
 public:
+
+  decltype(auto) keys() const noexcept
+  {
+    return ACCBOOST2::map(ItemToKey{}, _list);
+  }
 
   decltype(auto) begin() noexcept
   {
