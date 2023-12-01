@@ -22,7 +22,9 @@ decltype(auto) serialize(const ValueType& value)
 {
   char buffer[64];
   auto result = std::to_chars(buffer, buffer + 64, value);
-  if(result.ec != std::errc{}) throw std::system_error(std::make_error_code(result.ec));
+  if(result.ec != std::errc{}) [[unlikely]] {
+    throw std::system_error(std::make_error_code(result.ec));
+  }
   std::basic_string<CharType> str;
   str.reserve(result.ptr - buffer);
   for(auto* p = buffer; p != result.ptr; ++p){

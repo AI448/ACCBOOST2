@@ -48,8 +48,10 @@ namespace ACCBOOST2::IO::BINARY_TOOLS
       std::size_t operator()(char_type* buffer, std::size_t limit) override
       {
         if(fd_ < 0) return 0;
-        // limit を default_min_buffer_size の倍数に切り下げる．
-        limit = limit / default_min_buffer_size * default_min_buffer_size;
+        if(limit > default_min_buffer_size){
+          // limit を default_min_buffer_size の倍数に切り下げる．
+          limit = limit / default_min_buffer_size * default_min_buffer_size;
+        }
         auto result = ::read(fd_, buffer, limit);
         if(result < 0) throw std::runtime_error("read() failure.");
         return result;

@@ -12,55 +12,59 @@ namespace ACCBOOST2::IO::BINARY_TOOLS
   namespace _impl_Decorder
   {
 
-    static std::tuple<bool, unsigned> parse_u8char(const std::byte* s) noexcept
+    static inline std::tuple<bool, std::size_t> parse_u8char(const std::byte* s, std::size_t bytes) noexcept
     {
-      if(s[0] <= std::byte{0x7F}){
-        return {true, 1};
-      }else if(std::byte{0xC2} <= s[0] && s[0] <= std::byte{0xDF}){
-        if(std::byte{0x80} <= s[1] && s[1] <= std::byte{0xBF}) return {true, 2};
-        else return {false, 2};
-      }else if(s[0] == std::byte{0xE0}){
-        if(std::byte{0xA0} <= s[1] && s[1] <= std::byte{0xBF}){
-          if(std::byte{0x80} <= s[2] && s[2] <= std::byte{0xBF}) return {true, 3};
-          else return {false, 3};
-        }else return {false, 2};
-      }else if(std::byte{0xE1} <= s[0] && s[0] <= std::byte{0xEC}){
-        if(std::byte{0x80} <= s[1] && s[1] <= std::byte{0xBF}){
-          if(std::byte{0x80} <= s[2] && s[2] <= std::byte{0xBF}) return {true, 3};
-          else return {false, 3};
-        }else return {false, 2};
-      }else if(s[0] == std::byte{0xED}){
-        if(std::byte{0x80} <= s[1] && s[1] <= std::byte{0x9F}){
-          if(std::byte{0x80} <= s[2] && s[2] <= std::byte{0xBF}) return {true, 3};
-          else return {false, 3};
-        }else return {false, 2};
-      }else if(std::byte{0xEE} <= s[0] && s[0] <= std::byte{0xEF}){
-        if(std::byte{0x80} <= s[1] && s[1] <= std::byte{0xBF}){
-          if(std::byte{0x80} <= s[2] && s[2] <= std::byte{0xBF}) return {true, 3};
-          else return {false, 3};
-        }else return {false, 2};
-      }else if(s[0] == std::byte{0xF0}){
-        if(std::byte{0x90} <= s[1] && s[1] <= std::byte{0xBF}){
-          if(std::byte{0x80} <= s[2] && s[2] <= std::byte{0xBF}){
-            if(std::byte{0x80} <= s[3] && s[3] <= std::byte{0xBF}) return {true, 4};
-            else return {false, 4}; 
-          }else return {false, 3};
-        }else return {false, 2};
-      }else if(std::byte{0xF1} <= s[0] && s[0] <= std::byte{0xF3}){
-        if(std::byte{0x80} <= s[1] && s[1] <= std::byte{0xBF}){
-          if(std::byte{0x80} <= s[2] && s[2] <= std::byte{0xBF}){
-            if(std::byte{0x80} <= s[3] && s[3] <= std::byte{0xBF}) return {true, 4};
-            else return {false, 4};
-          }else return {false, 3};
-        }else return {false, 2};
-      }else if(s[0] == std::byte{0xF4}){
-        if(std::byte{0x80} <= s[1] && s[1] <= std::byte{0x8F}){
-          if(std::byte{0x80} <= s[2] && s[2] <= std::byte{0xBF}){
-            if(std::byte{0x80} <= s[3] && s[3] <= std::byte{0xBF}) return {true, 4};
-            else return {false, 4};
-          }else return {false, 3};
-        }else return {false, 2};
-      }else return {false, 1};
+      if(bytes >= 1){
+        if(s[0] <= std::byte{0x7F}){
+          return {true, 1};
+        }else if(std::byte{0xC2} <= s[0] && s[0] <= std::byte{0xDF}){
+          if(bytes >= 2 && std::byte{0x80} <= s[1] && s[1] <= std::byte{0xBF}) return {true, 2};
+          else return {false, 1};
+        }else if(s[0] == std::byte{0xE0}){
+          if(bytes >= 2 && std::byte{0xA0} <= s[1] && s[1] <= std::byte{0xBF}){
+            if(bytes >= 3 && std::byte{0x80} <= s[2] && s[2] <= std::byte{0xBF}) return {true, 3};
+            else return {false, 2};
+          }else return {false, 1};
+        }else if(std::byte{0xE1} <= s[0] && s[0] <= std::byte{0xEC}){
+          if(bytes >= 2 && std::byte{0x80} <= s[1] && s[1] <= std::byte{0xBF}){
+            if(bytes >= 3 && std::byte{0x80} <= s[2] && s[2] <= std::byte{0xBF}) return {true, 3};
+            else return {false, 2};
+          }else return {false, 1};
+        }else if(s[0] == std::byte{0xED}){
+          if(bytes >= 2 && std::byte{0x80} <= s[1] && s[1] <= std::byte{0x9F}){
+            if(bytes >= 3 && std::byte{0x80} <= s[2] && s[2] <= std::byte{0xBF}) return {true, 3};
+            else return {false, 2};
+          }else return {false, 1};
+        }else if(std::byte{0xEE} <= s[0] && s[0] <= std::byte{0xEF}){
+          if(bytes >= 2 && std::byte{0x80} <= s[1] && s[1] <= std::byte{0xBF}){
+            if(bytes >= 3 && std::byte{0x80} <= s[2] && s[2] <= std::byte{0xBF}) return {true, 3};
+            else return {false, 2};
+          }else return {false, 1};
+        }else if(s[0] == std::byte{0xF0}){
+          if(bytes >= 2 && std::byte{0x90} <= s[1] && s[1] <= std::byte{0xBF}){
+            if(bytes >= 3 && std::byte{0x80} <= s[2] && s[2] <= std::byte{0xBF}){
+              if(bytes >= 4 && std::byte{0x80} <= s[3] && s[3] <= std::byte{0xBF}) return {true, 4};
+              else return {false, 3}; 
+            }else return {false, 2};
+          }else return {false, 1};
+        }else if(std::byte{0xF1} <= s[0] && s[0] <= std::byte{0xF3}){
+          if(bytes >= 2 && std::byte{0x80} <= s[1] && s[1] <= std::byte{0xBF}){
+            if(bytes >= 3 && std::byte{0x80} <= s[2] && s[2] <= std::byte{0xBF}){
+              if(bytes >= 4 && std::byte{0x80} <= s[3] && s[3] <= std::byte{0xBF}) return {true, 4};
+              else return {false, 3};
+            }else return {false, 2};
+          }else return {false, 1};
+        }else if(s[0] == std::byte{0xF4}){
+          if(bytes >= 2 && std::byte{0x80} <= s[1] && s[1] <= std::byte{0x8F}){
+            if(bytes >= 3 && std::byte{0x80} <= s[2] && s[2] <= std::byte{0xBF}){
+              if(bytes >= 4 && std::byte{0x80} <= s[3] && s[3] <= std::byte{0xBF}) return {true, 4};
+              else return {false, 3};
+            }else return {false, 2};
+          }else return {false, 1};
+        }else return {false, 0};
+      }else{
+        return {false, 0};
+      }
     }
 
 
@@ -118,13 +122,13 @@ namespace ACCBOOST2::IO::BINARY_TOOLS
       BinaryReaderPtrT binary_reader_;
       std::size_t min_buffer_size_;
       std::size_t frag_size_;
-      char_type frag_buffer_[4];
+      char_type frag_buffer_[3];
 
     public:
 
       template<class T>
       explicit U8DecoderFromUTF8(T&& binary_reader):
-        binary_reader_(std::forward<T>(binary_reader)), min_buffer_size_(binary_reader_->min_buffer_size() + 6), frag_size_(0), frag_buffer_()
+        binary_reader_(std::forward<T>(binary_reader)), min_buffer_size_(binary_reader_->min_buffer_size() + 3), frag_size_(0), frag_buffer_()
       {}
 
       std::size_t min_buffer_size() const noexcept override
@@ -136,36 +140,33 @@ namespace ACCBOOST2::IO::BINARY_TOOLS
       {
         if(binary_reader_ != nullptr){
           assert(limit >= min_buffer_size_);
+          // frag_buffer_ の内容を buffer に移動
           for(std::uint8_t i = 0; i < frag_size_; ++i){
             buffer[i] = frag_buffer_[i];
           }
-          //
-          auto m = (*binary_reader_)(reinterpret_cast<std::byte*>(buffer) + frag_size_, limit - frag_size_ - 3);
+          // buffer + frag_size_ 以降にデータを書き込み
+          auto m = (*binary_reader_)(reinterpret_cast<std::byte*>(buffer) + frag_size_, limit - frag_size_);
+          // frag_buffer_ から移動した分を含めたバイト数
           auto n = m + frag_size_;
           frag_size_ = 0;
           //
-          if(n == 0) return 0;
-          //
-          assert(n + 3 <= limit);
-          buffer[n] = 0;
-          buffer[n + 1] = 0;
-          buffer[n + 2] = 0;
-          //
-          auto [is_valid, bytes] = parse_u8char(reinterpret_cast<std::byte*>(buffer));
-          if(!is_valid) throw std::runtime_error("Invalid encoding");
-          //
-          assert(bytes <= n);
-          for(std::size_t i = bytes; i < n;){
-            auto [is_valid, bytes] = parse_u8char(reinterpret_cast<std::byte*>(buffer + i));
-            if(is_valid){
+          for(std::size_t i = 0; i < n;){
+            auto [is_valid, bytes] = parse_u8char(reinterpret_cast<std::byte*>(buffer + i), n - i);
+            assert(i + bytes <= n);
+            if(is_valid) [[likely]] {
+              assert(bytes >= 1);
               i += bytes;
-              assert(i <= n);
             }else{
-              frag_size_ = std::min<std::size_t>(bytes, n - i);
-              for(std::size_t j = 0; j < frag_size_; ++j){
-                frag_buffer_[j] = buffer[i + j];
+              assert(bytes <= 3);
+              if(i + bytes == n){
+                frag_size_ = bytes;
+                for(std::size_t j = 0; j < bytes; ++j){
+                  frag_buffer_[j] = buffer[i + j];
+                }
+                return i;
+              }else{
+                throw std::runtime_error("Invalid encoding");
               }
-              return i;
             }
           }
           return n;
